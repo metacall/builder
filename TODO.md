@@ -1,0 +1,32 @@
+ TODO
+ 
+ - [ ] Implement base language dependencies (`deps`), aka build dependencies.
+  - [ ] Python
+  - [ ] NodeJS
+  - [ ] TypeScript
+  - [ ] Ruby
+  - [ ] C#
+  - [ ] WebAssembly
+  - [ ] Java
+  - [ ] C
+  - [ ] Cobol
+  - [ ] RPC
+ - [ ] Build MetaCall without any language and make it a base image for the runtime.
+ - [ ] Build MetaCall for each language using the base image and the dependency.
+ - [ ] Create a new image installing only the runtime dependencies and the pre-built libraries from MetaCall generating runtime compact images for each language.
+  - [ ] Python
+  - [ ] NodeJS
+  - [ ] TypeScript
+  - [ ] Ruby
+  - [ ] C#
+  - [ ] WebAssembly
+  - [ ] Java
+  - [ ] File
+  - [ ] C
+  - [ ] Cobol
+  - [ ] RPC
+ - [ ] Add testing, build a matrix for testing each language.
+ - [ ] Dockerize the Go project in a small image so it can be used in Kuberentes.
+ - [ ] Make it compatible with rootless and daemonless mode (specially in Docker).
+ - [ ] Add CLI options or Docker arguments in order to allow private registries.
+ - [ ] Benchmark the application in order to test the efficiency, calculate the size and time improvements respect to the current Docker image build system.
