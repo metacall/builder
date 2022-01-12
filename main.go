@@ -4,9 +4,10 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/moby/buildkit/client/llb"
 	"log"
 	"os"
+
+	"github.com/moby/buildkit/client/llb"
 )
 
 type LanguageType int
@@ -37,6 +38,19 @@ var LanguageMap = map[string]LanguageType{
 	"file": File,
 	"mock": Mock,
 	"rpc":  RPC,
+}
+
+var buildFuncMap = map[LanguageType]func(llb.State) llb.State{
+	Python: buildPy,
+	Node:   buildNode,
+	//	TypeScript: buildTS,
+	Ruby:        buildRuby,
+	CSharp:      buildCSharp,
+	Java:        buildJava,
+	WebAssembly: buildWasm,
+	Cobol:       buildCobol,
+	//	File:        buildFile,
+	RPC: buildRPC,
 }
 
 var LanguageKeys = (func() []string {
@@ -72,6 +86,70 @@ func ParseLanguages(args []string) ([]LanguageType, error) {
 	return languages, nil
 }
 
+func buildNode(baseImg llb.State) llb.State {
+	return baseImg.
+		Run(llb.Shlex("apt-get update && apt-get -y --no-install-recommends install python3 g++ make nodejs curl")).Root()
+}
+
+func buildPy(baseImg llb.State) llb.State {
+	return baseImg.
+		Run(llb.Shlex("apt-get update && apt-get -y --no-install-recommends install python3 python3-dev python3-pip")).Root()
+}
+
+func buildRuby(baseImg llb.State) llb.State {
+	return baseImg.
+		Run(llb.Shlex("apt-get update && apt-get -y --no-install-recommends install ruby2.7 ruby2.7-dev")).Root()
+}
+
+func buildRPC(baseImg llb.State) llb.State {
+	return baseImg.
+		Run(llb.Shlex("apt-get update && apt-get -y --no-install-recommends install libcurl4-openssl-dev")).Root()
+}
+
+func buildJava(baseImg llb.State) llb.State {
+	return baseImg.
+		Run(llb.Shlex("apt-get update && apt-get install default-jdk")).Root()
+}
+
+func buildCobol(baseImg llb.State) llb.State {
+	return baseImg.
+		Run(llb.Shlex("apt-get update && apt-get install open-cobol")).Root()
+}
+
+func buildCSharp(baseImg llb.State) llb.State {
+	return baseImg.
+		Run(llb.Shlex(`apt-get update && apt-get install -y apt-transport-https && \
+		apt-get update && \
+		apt-get install -y dotnet-sdk-5.0`)).Root()
+}
+
+func buildWasm(baseImg llb.State) llb.State {
+	return baseImg.
+		Run(llb.Shlex(`apt-get update && apt-get install curl ca-certificates \
+		&& apt-get install xz-utils \
+		&& curl https://wasmtime.dev/install.sh -sSf | bash\
+		&& apt-get remove curl ca-certificates \
+		&& apt-get remove xz-utils \
+		88 apt-get autoremove --purge`)).Root()
+}
+
+func buildDeps(langs []LanguageType) {
+
+	// Pulls Debian BaseImage from registry
+	baseImg := llb.Image("docker.io/library/debian:bullseye-slim")
+
+	dt, err := baseImg.Marshal(context.TODO(), llb.LinuxAmd64)
+
+	for _, v := range langs {
+		baseImg = buildFuncMap[v](baseImg)
+	}
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	llb.WriteTo(dt, os.Stdout)
+}
+
 func main() {
 	var opt BuildOptions
 	var err error
@@ -87,14 +165,6 @@ func main() {
 	fmt.Println(opt.version)
 	fmt.Println(opt.languages)
 
-	// Random instruction for Buildkit in order to test
-	goAlpine := llb.Image("docker.io/library/golang:1.17-alpine")
+	buildDeps(opt.languages)
 
-	dt, err := goAlpine.Marshal(context.TODO(), llb.LinuxAmd64)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	llb.WriteTo(dt, os.Stdout)
 }
