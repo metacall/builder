@@ -1,16 +1,16 @@
  # TODO
  
- - [ ] Implement base language dependencies (`deps`), aka build dependencies.
-    - [ ] Python
-    - [ ] NodeJS
+ - [X] Implement base language dependencies (`deps`), aka build dependencies.
+    - [X] Python
+    - [X] NodeJS
     - [ ] TypeScript
-    - [ ] Ruby
-    - [ ] C#
-    - [ ] WebAssembly
-    - [ ] Java
-    - [ ] C
+    - [X] Ruby
+    - [X] C#
+    - [X] WebAssembly
+    - [X] Java
+    - [X] C
     - [ ] Cobol
-    - [ ] RPC
+    - [X] RPC
  - [ ] Build MetaCall without any language and make it a base image for the runtime.
  - [ ] Build MetaCall for each language using the base image and the dependency.
  - [ ] Create a new image installing only the runtime dependencies and the pre-built libraries from MetaCall generating runtime compact images for each language.

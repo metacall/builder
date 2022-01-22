@@ -11,5 +11,5 @@ go build main.go
 ## Run
 
 ```sh
-./main --version v0.5.6 py node rb
+./main py node rb | buildctl build --output type=docker,name=imagename | docker load
 ```
