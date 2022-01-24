@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/moby/buildkit/client/llb"
+	_ "github.com/moby/buildkit/util/progress"
 )
 
 type LanguageType int
@@ -17,6 +18,7 @@ const (
 	Node
 	TypeScript
 	Ruby
+	C
 	CSharp
 	Java
 	WebAssembly
@@ -31,6 +33,7 @@ var LanguageMap = map[string]LanguageType{
 	"node": Node,
 	"ts":   TypeScript,
 	"rb":   Ruby,
+	"c":    C,
 	"cs":   CSharp,
 	"java": Java,
 	"wasm": WebAssembly,
@@ -41,16 +44,17 @@ var LanguageMap = map[string]LanguageType{
 }
 
 var buildFuncMap = map[LanguageType]func(llb.State) llb.State{
-	Python: buildPy,
-	Node:   buildNode,
+	Python: buildPyEnv,
+	Node:   buildNodeEnv,
 	//	TypeScript: buildTS,
-	Ruby:        buildRuby,
-	CSharp:      buildCSharp,
-	Java:        buildJava,
-	WebAssembly: buildWasm,
-	Cobol:       buildCobol,
+	Ruby:        buildRubyEnv,
+	CSharp:      buildCSharpEnv,
+	Java:        buildJavaEnv,
+	WebAssembly: buildWasmEnv,
+	C:           buildCEnv,
+	//	Cobol:       buildCobol,
 	//	File:        buildFile,
-	RPC: buildRPC,
+	RPC: buildRPCEnv,
 }
 
 var LanguageKeys = (func() []string {
@@ -86,51 +90,66 @@ func ParseLanguages(args []string) ([]LanguageType, error) {
 	return languages, nil
 }
 
-func buildNode(baseImg llb.State) llb.State {
+func buildNodeEnv(baseImg llb.State) llb.State {
 	return baseImg.
-		Run(llb.Shlex("apt-get update && apt-get -y --no-install-recommends install python3 g++ make nodejs curl")).Root()
+		Run(llb.Shlex("apt-get update")).
+		Run(llb.Shlex("apt-get -y --no-install-recommends install python3 g++ make nodejs curl")).Root()
 }
 
-func buildPy(baseImg llb.State) llb.State {
+func buildPyEnv(baseImg llb.State) llb.State {
 	return baseImg.
-		Run(llb.Shlex("apt-get update && apt-get -y --no-install-recommends install python3 python3-dev python3-pip")).Root()
+		Run(llb.Shlex("apt-get update")).
+		Run(llb.Shlex("apt-get -y --no-install-recommends install python3 python3-dev python3-pip")).Root()
 }
 
-func buildRuby(baseImg llb.State) llb.State {
+func buildRubyEnv(baseImg llb.State) llb.State {
 	return baseImg.
-		Run(llb.Shlex("apt-get update && apt-get -y --no-install-recommends install ruby2.7 ruby2.7-dev")).Root()
+		Run(llb.Shlex("apt-get update")).
+		Run(llb.Shlex("apt-get -y --no-install-recommends install ruby2.7 ruby2.7-dev")).Root()
 }
 
-func buildRPC(baseImg llb.State) llb.State {
+func buildRPCEnv(baseImg llb.State) llb.State {
 	return baseImg.
-		Run(llb.Shlex("apt-get update && apt-get -y --no-install-recommends install libcurl4-openssl-dev")).Root()
+		Run(llb.Shlex("apt-get update")).
+		Run(llb.Shlex("apt-get -y --no-install-recommends install libcurl4-openssl-dev")).Root()
 }
 
-func buildJava(baseImg llb.State) llb.State {
+func buildJavaEnv(baseImg llb.State) llb.State {
 	return baseImg.
-		Run(llb.Shlex("apt-get update && apt-get install default-jdk")).Root()
+		Run(llb.Shlex("apt-get update")).
+		Run(llb.Shlex("apt-get -y --no-install-recommends install default-jdk")).Root()
 }
 
-func buildCobol(baseImg llb.State) llb.State {
+func buildCSharpEnv(baseImg llb.State) llb.State {
 	return baseImg.
-		Run(llb.Shlex("apt-get update && apt-get install open-cobol")).Root()
+		Run(llb.Shlex("apt-get update")).
+		Run(llb.Shlex("apt-get install wget")).
+		Run(llb.Shlex("wget https://packages.microsoft.com/config/debian/11/packages-microsoft-prod.deb -O packages-microsoft-prod.deb")).
+		Run(llb.Shlex("dpkg -i packages-microsoft-prod.deb")).
+		Run(llb.Shlex("rm packages-microsoft-prod.deb")).
+		Run(llb.Shlex("apt-get install -y apt-transport-https")).
+		Run(llb.Shlex("apt-get update")).
+		Run(llb.Shlex("apt-get install -y dotnet-sdk-5.0")).
+		Run(llb.Shlex("apt-get -y remove wget")).
+		Run(llb.Shlex("apt-get -y autoremove --purge")).Root()
+
 }
 
-func buildCSharp(baseImg llb.State) llb.State {
+func buildWasmEnv(baseImg llb.State) llb.State {
 	return baseImg.
-		Run(llb.Shlex(`apt-get update && apt-get install -y apt-transport-https && \
-		apt-get update && \
-		apt-get install -y dotnet-sdk-5.0`)).Root()
+		Run(llb.Shlex("apt-get update")).
+		Run(llb.Shlex("apt-get -y --no-install-recommends install xz-utils wget")).
+		Run(llb.Shlex("wget https://wasmtime.dev/install.sh")).
+		Run(llb.Shlex("bash install.sh")).
+		Run(llb.Shlex("rm install.sh")).
+		Run(llb.Shlex("apt-get -y remove wget xz-utils")).
+		Run(llb.Shlex("apt-get -y autoremove --purge")).Root()
 }
 
-func buildWasm(baseImg llb.State) llb.State {
+func buildCEnv(baseImg llb.State) llb.State {
 	return baseImg.
-		Run(llb.Shlex(`apt-get update && apt-get install curl ca-certificates \
-		&& apt-get install xz-utils \
-		&& curl https://wasmtime.dev/install.sh -sSf | bash\
-		&& apt-get remove curl ca-certificates \
-		&& apt-get remove xz-utils \
-		88 apt-get autoremove --purge`)).Root()
+		Run(llb.Shlex("apt-get update")).
+		Run(llb.Shlex("apt-get -y --no-install-recommends install cmake build-essential")).Root()
 }
 
 func buildDeps(langs []LanguageType) {
@@ -138,11 +157,11 @@ func buildDeps(langs []LanguageType) {
 	// Pulls Debian BaseImage from registry
 	baseImg := llb.Image("docker.io/library/debian:bullseye-slim")
 
-	dt, err := baseImg.Marshal(context.TODO(), llb.LinuxAmd64)
-
 	for _, v := range langs {
 		baseImg = buildFuncMap[v](baseImg)
 	}
+	dt, err := baseImg.Marshal(context.TODO(), llb.LinuxAmd64)
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -160,10 +179,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// Debug
-	fmt.Println(opt.version)
-	fmt.Println(opt.languages)
 
 	buildDeps(opt.languages)
 
