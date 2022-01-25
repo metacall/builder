@@ -58,6 +58,19 @@ var envDepsFuncMap = map[LanguageType]func(llb.State) llb.State{
 	RPC: buildRPCEnv,
 }
 
+var runtimeDepsFuncMap = map[LanguageType]func(llb.State) llb.State{
+	Python: buildPyRuntime,
+	Node:   buildNodeRuntime,
+	//	TypeScript: buildTSRuntime,
+	Ruby: buildRubyRuntime,
+	//	CSharp: buildCSharpRuntime,
+	//	Java:        buildJavaRuntime,
+	//	WebAssembly: buildWasmRuntime,
+	//	Cobol: buildCobolRuntime,
+	//	File: buildFile,
+	RPC: buildRpcRuntime,
+}
+
 var LanguageKeys = (func() []string {
 	keys := make([]string, len(LanguageMap))
 	for k, v := range LanguageMap {
@@ -165,6 +178,30 @@ func buildMetacallBase(baseImg llb.State) llb.State {
 		Run(llb.Shlexf("make -j%v", runtime.NumCPU())).Root()
 }
 
+func buildPyRuntime(baseImg llb.State) llb.State {
+	return baseImg.
+		Run(llb.Shlex("apt-get -y install --no-install-recommends libpython3.9")).
+		Run(llb.Shlex("apt-mark hold libpython3.9")).Root()
+}
+
+func buildNodeRuntime(baseImg llb.State) llb.State {
+	return baseImg.
+		Run(llb.Shlex("apt-get -y --no-install-recommends install libnode72")).
+		Run(llb.Shlex("apt-mark hold libnode72")).Root()
+}
+
+func buildRubyRuntime(baseImg llb.State) llb.State {
+	return baseImg.
+		Run(llb.Shlex("apt-get -y --no-install-recommends install libruby2.7")).
+		Run(llb.Shlex("apt-mark hold libruby2.7")).Root()
+}
+
+func buildRpcRuntime(baseImg llb.State) llb.State {
+	return baseImg.
+		Run(llb.Shlex("apt-get -y --no-install-recommends install libcurl4")).
+		Run(llb.Shlex("apt-mark hold libcurl4")).Root()
+}
+
 func buildDeps(langs []LanguageType) {
 
 	// Pulls Debian BaseImage from registry
@@ -173,16 +210,30 @@ func buildDeps(langs []LanguageType) {
 
 	metacallBase = buildMetacallBase(metacallBase)
 
+	mbasellb, err := metacallBase.Marshal(context.TODO(), llb.LinuxAmd64)
+	if err != nil {
+		log.Fatal(err)
+	}
+	llb.WriteTo(mbasellb, os.Stdout)
+
 	for _, v := range langs {
 		baseImg = envDepsFuncMap[v](baseImg)
 	}
-	dt, err := metacallBase.Marshal(context.TODO(), llb.LinuxAmd64)
+
+	baseImg = baseImg.Run(llb.Shlex("apt-get update")).
+		Run(llb.Shlex("apt-get -y install --no-install-recommends wget gpg apt-transport-https")).Root()
+
+	for _, v := range langs {
+		baseImg = runtimeDepsFuncMap[v](baseImg)
+	}
+
+	langdepsllb, err := baseImg.Marshal(context.TODO(), llb.LinuxAmd64)
 
 	if err != nil {
 		log.Fatal(err)
 	}
+	llb.WriteTo(langdepsllb, os.Stdout)
 
-	llb.WriteTo(dt, os.Stdout)
 }
 
 func main() {
