@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
 
 	"github.com/moby/buildkit/client/llb"
 	_ "github.com/moby/buildkit/util/progress"
@@ -43,7 +44,7 @@ var LanguageMap = map[string]LanguageType{
 	"rpc":  RPC,
 }
 
-var buildFuncMap = map[LanguageType]func(llb.State) llb.State{
+var envDepsFuncMap = map[LanguageType]func(llb.State) llb.State{
 	Python: buildPyEnv,
 	Node:   buildNodeEnv,
 	//	TypeScript: buildTS,
@@ -152,15 +153,30 @@ func buildCEnv(baseImg llb.State) llb.State {
 		Run(llb.Shlex("apt-get -y --no-install-recommends install cmake build-essential")).Root()
 }
 
+func buildMetacallBase(baseImg llb.State) llb.State {
+	return baseImg.
+		Run(llb.Shlex("apt-get update")).
+		Run(llb.Shlex("apt-get -y --no-install-recommends install git ca-certificates cmake build-essential")).
+		Run(llb.Shlex("git clone https://github.com/metacall/core.git")).
+		Run(llb.Shlex("mkdir core/build")).
+		Dir("core/build").
+		Run(llb.Shlex("cmake -DOPTION_BUILD_SCRIPTS=OFF -DOPTION_BUILD_EXAMPLES=OFF -DOPTION_BUILD_TESTS=OFF -DOPTION_BUILD_DOCS=OFF -DOPTION_FORK_SAFE=OFF ..")).
+		Run(llb.Shlex("cmake --build . --target install")).
+		Run(llb.Shlexf("make -j%v", runtime.NumCPU())).Root()
+}
+
 func buildDeps(langs []LanguageType) {
 
 	// Pulls Debian BaseImage from registry
 	baseImg := llb.Image("docker.io/library/debian:bullseye-slim")
+	metacallBase := llb.Image("docker.io/library/debian:bullseye-slim")
+
+	metacallBase = buildMetacallBase(metacallBase)
 
 	for _, v := range langs {
-		baseImg = buildFuncMap[v](baseImg)
+		baseImg = envDepsFuncMap[v](baseImg)
 	}
-	dt, err := baseImg.Marshal(context.TODO(), llb.LinuxAmd64)
+	dt, err := metacallBase.Marshal(context.TODO(), llb.LinuxAmd64)
 
 	if err != nil {
 		log.Fatal(err)
