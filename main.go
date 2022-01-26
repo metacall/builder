@@ -174,8 +174,7 @@ func buildMetacallBase(baseImg llb.State) llb.State {
 		Run(llb.Shlex("mkdir core/build")).
 		Dir("core/build").
 		Run(llb.Shlex("cmake -DOPTION_BUILD_SCRIPTS=OFF -DOPTION_BUILD_EXAMPLES=OFF -DOPTION_BUILD_TESTS=OFF -DOPTION_BUILD_DOCS=OFF -DOPTION_FORK_SAFE=OFF ..")).
-		Run(llb.Shlex("cmake --build . --target install")).
-		Run(llb.Shlexf("make -j%v", runtime.NumCPU())).Root()
+		Run(llb.Shlexf("cmake --build . -j %v --target install", runtime.NumCPU())).Root()
 }
 
 func buildPyRuntime(baseImg llb.State) llb.State {
