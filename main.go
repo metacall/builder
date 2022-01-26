@@ -166,11 +166,11 @@ func buildCEnv(baseImg llb.State) llb.State {
 		Run(llb.Shlex("apt-get -y --no-install-recommends install cmake build-essential")).Root()
 }
 
-func buildMetacallBase(baseImg llb.State) llb.State {
+func buildMetacallBase(baseImg llb.State, version string) llb.State {
 	return baseImg.
 		Run(llb.Shlex("apt-get update")).
 		Run(llb.Shlex("apt-get -y --no-install-recommends install git ca-certificates cmake build-essential")).
-		Run(llb.Shlex("git clone https://github.com/metacall/core.git")).
+		Run(llb.Shlexf("git clone --depth 1 --single-branch --branch=%v https://github.com/metacall/core.git", version)).
 		Run(llb.Shlex("mkdir core/build")).
 		Dir("core/build").
 		Run(llb.Shlex("cmake -DOPTION_BUILD_SCRIPTS=OFF -DOPTION_BUILD_EXAMPLES=OFF -DOPTION_BUILD_TESTS=OFF -DOPTION_BUILD_DOCS=OFF -DOPTION_FORK_SAFE=OFF ..")).
@@ -201,13 +201,13 @@ func buildRpcRuntime(baseImg llb.State) llb.State {
 		Run(llb.Shlex("apt-mark hold libcurl4")).Root()
 }
 
-func buildDeps(langs []LanguageType) {
+func buildDeps(langs []LanguageType, version string) {
 
 	// Pulls Debian BaseImage from registry
 	baseImg := llb.Image("docker.io/library/debian:bullseye-slim")
 	metacallBase := llb.Image("docker.io/library/debian:bullseye-slim")
 
-	metacallBase = buildMetacallBase(metacallBase)
+	metacallBase = buildMetacallBase(metacallBase, version)
 
 	mbasellb, err := metacallBase.Marshal(context.TODO(), llb.LinuxAmd64)
 	if err != nil {
@@ -238,7 +238,7 @@ func buildDeps(langs []LanguageType) {
 func main() {
 	var opt BuildOptions
 	var err error
-	flag.StringVar(&opt.version, "version", "v0.5.6", "MetaCall version to build with")
+	flag.StringVar(&opt.version, "version", "develop", "MetaCall version to build with")
 	flag.Parse()
 	opt.languages, err = ParseLanguages(flag.Args())
 
@@ -246,6 +246,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	buildDeps(opt.languages)
+	buildDeps(opt.languages, opt.version)
 
 }
