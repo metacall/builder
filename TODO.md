@@ -11,7 +11,7 @@
     - [X] C
     - [ ] Cobol
     - [X] RPC
- - [ ] Build MetaCall without any language and make it a base image for the runtime.
+ - [X] Build MetaCall without any language and make it a base image for the runtime.
  - [ ] Build MetaCall for each language using the base image and the dependency.
  - [ ] Create a new image installing only the runtime dependencies and the pre-built libraries from MetaCall generating runtime compact images for each language.
     - [ ] Python

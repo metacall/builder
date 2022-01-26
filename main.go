@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
 
 	"github.com/moby/buildkit/client/llb"
 	_ "github.com/moby/buildkit/util/progress"
@@ -43,7 +44,7 @@ var LanguageMap = map[string]LanguageType{
 	"rpc":  RPC,
 }
 
-var buildFuncMap = map[LanguageType]func(llb.State) llb.State{
+var envDepsFuncMap = map[LanguageType]func(llb.State) llb.State{
 	Python: buildPyEnv,
 	Node:   buildNodeEnv,
 	//	TypeScript: buildTS,
@@ -55,6 +56,19 @@ var buildFuncMap = map[LanguageType]func(llb.State) llb.State{
 	//	Cobol:       buildCobol,
 	//	File:        buildFile,
 	RPC: buildRPCEnv,
+}
+
+var runtimeDepsFuncMap = map[LanguageType]func(llb.State) llb.State{
+	Python: buildPyRuntime,
+	Node:   buildNodeRuntime,
+	//	TypeScript: buildTSRuntime,
+	Ruby: buildRubyRuntime,
+	//	CSharp: buildCSharpRuntime,
+	//	Java:        buildJavaRuntime,
+	//	WebAssembly: buildWasmRuntime,
+	//	Cobol: buildCobolRuntime,
+	//	File: buildFile,
+	RPC: buildRpcRuntime,
 }
 
 var LanguageKeys = (func() []string {
@@ -152,21 +166,74 @@ func buildCEnv(baseImg llb.State) llb.State {
 		Run(llb.Shlex("apt-get -y --no-install-recommends install cmake build-essential")).Root()
 }
 
+func buildMetacallBase(baseImg llb.State) llb.State {
+	return baseImg.
+		Run(llb.Shlex("apt-get update")).
+		Run(llb.Shlex("apt-get -y --no-install-recommends install git ca-certificates cmake build-essential")).
+		Run(llb.Shlex("git clone https://github.com/metacall/core.git")).
+		Run(llb.Shlex("mkdir core/build")).
+		Dir("core/build").
+		Run(llb.Shlex("cmake -DOPTION_BUILD_SCRIPTS=OFF -DOPTION_BUILD_EXAMPLES=OFF -DOPTION_BUILD_TESTS=OFF -DOPTION_BUILD_DOCS=OFF -DOPTION_FORK_SAFE=OFF ..")).
+		Run(llb.Shlex("cmake --build . --target install")).
+		Run(llb.Shlexf("make -j%v", runtime.NumCPU())).Root()
+}
+
+func buildPyRuntime(baseImg llb.State) llb.State {
+	return baseImg.
+		Run(llb.Shlex("apt-get -y install --no-install-recommends libpython3.9")).
+		Run(llb.Shlex("apt-mark hold libpython3.9")).Root()
+}
+
+func buildNodeRuntime(baseImg llb.State) llb.State {
+	return baseImg.
+		Run(llb.Shlex("apt-get -y --no-install-recommends install libnode72")).
+		Run(llb.Shlex("apt-mark hold libnode72")).Root()
+}
+
+func buildRubyRuntime(baseImg llb.State) llb.State {
+	return baseImg.
+		Run(llb.Shlex("apt-get -y --no-install-recommends install libruby2.7")).
+		Run(llb.Shlex("apt-mark hold libruby2.7")).Root()
+}
+
+func buildRpcRuntime(baseImg llb.State) llb.State {
+	return baseImg.
+		Run(llb.Shlex("apt-get -y --no-install-recommends install libcurl4")).
+		Run(llb.Shlex("apt-mark hold libcurl4")).Root()
+}
+
 func buildDeps(langs []LanguageType) {
 
 	// Pulls Debian BaseImage from registry
 	baseImg := llb.Image("docker.io/library/debian:bullseye-slim")
+	metacallBase := llb.Image("docker.io/library/debian:bullseye-slim")
+
+	metacallBase = buildMetacallBase(metacallBase)
+
+	mbasellb, err := metacallBase.Marshal(context.TODO(), llb.LinuxAmd64)
+	if err != nil {
+		log.Fatal(err)
+	}
+	llb.WriteTo(mbasellb, os.Stdout)
 
 	for _, v := range langs {
-		baseImg = buildFuncMap[v](baseImg)
+		baseImg = envDepsFuncMap[v](baseImg)
 	}
-	dt, err := baseImg.Marshal(context.TODO(), llb.LinuxAmd64)
+
+	baseImg = baseImg.Run(llb.Shlex("apt-get update")).
+		Run(llb.Shlex("apt-get -y install --no-install-recommends wget gpg apt-transport-https")).Root()
+
+	for _, v := range langs {
+		baseImg = runtimeDepsFuncMap[v](baseImg)
+	}
+
+	langdepsllb, err := baseImg.Marshal(context.TODO(), llb.LinuxAmd64)
 
 	if err != nil {
 		log.Fatal(err)
 	}
+	llb.WriteTo(langdepsllb, os.Stdout)
 
-	llb.WriteTo(dt, os.Stdout)
 }
 
 func main() {
