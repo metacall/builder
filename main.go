@@ -107,7 +107,7 @@ func ParseLanguages(args []string) ([]LanguageType, error) {
 func buildNodeEnv(baseImg llb.State) llb.State {
 	return baseImg.
 		Run(llb.Shlex("apt-get update")).
-		Run(llb.Shlex("apt-get -y --no-install-recommends install python3 g++ make nodejs curl")).Root()
+		Run(llb.Shlex("apt-get -y --no-install-recommends install python3 g++ make nodejs npm")).Root()
 }
 
 func buildPyEnv(baseImg llb.State) llb.State {
@@ -220,13 +220,14 @@ func buildDeps(langs []LanguageType, version string) {
 	}
 
 	baseImg = baseImg.Run(llb.Shlex("apt-get update")).
-		Run(llb.Shlex("apt-get -y install --no-install-recommends wget gpg apt-transport-https")).Root()
+		Run(llb.Shlex("apt-get -y install --no-install-recommends wget gpg apt-transport-https cmake build-essential")).Root()
 
 	for _, v := range langs {
 		baseImg = runtimeDepsFuncMap[v](baseImg)
 	}
 
 	baseImg = copy(metacallBase, "/core", baseImg, "/")
+	baseImg = baseImg.Dir("core/build").Run(llb.Shlex("cmake -DOPTION_BUILD_LOADERS_PY=On -DOPTION_BUILD_LOADERS_NODE=On ..")).Root()
 
 	langdepsllb, err := baseImg.Marshal(context.TODO(), llb.LinuxAmd64)
 
