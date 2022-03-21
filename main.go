@@ -107,7 +107,7 @@ func ParseLanguages(args []string) ([]LanguageType, error) {
 func buildNodeEnv(baseImg llb.State) llb.State {
 	return baseImg.
 		Run(llb.Shlex("apt-get update")).
-		Run(llb.Shlex("apt-get -y --no-install-recommends install python3 g++ make nodejs curl")).Root()
+		Run(llb.Shlex("apt-get -y --no-install-recommends install python3 g++ make nodejs npm")).Root()
 }
 
 func buildPyEnv(baseImg llb.State) llb.State {
@@ -201,30 +201,33 @@ func buildRpcRuntime(baseImg llb.State) llb.State {
 		Run(llb.Shlex("apt-mark hold libcurl4")).Root()
 }
 
+func copy(src llb.State, srcPath string, dest llb.State, destPath string) llb.State {
+	cpImage := llb.Image("docker.io/debian:bullseye-slim")
+	cp := cpImage.Run(llb.Shlexf("cp -a /src%s /dest%s", srcPath, destPath))
+	cp.AddMount("/src", src)
+	return cp.AddMount("/dest", dest)
+}
+
 func buildDeps(langs []LanguageType, version string) {
 
 	// Pulls Debian BaseImage from registry
 	baseImg := llb.Image("docker.io/library/debian:bullseye-slim")
-	metacallBase := llb.Image("docker.io/library/debian:bullseye-slim")
 
-	metacallBase = buildMetacallBase(metacallBase, version)
-
-	mbasellb, err := metacallBase.Marshal(context.TODO(), llb.LinuxAmd64)
-	if err != nil {
-		log.Fatal(err)
-	}
-	llb.WriteTo(mbasellb, os.Stdout)
+	metacallBase := buildMetacallBase(baseImg, version)
 
 	for _, v := range langs {
 		baseImg = envDepsFuncMap[v](baseImg)
 	}
 
 	baseImg = baseImg.Run(llb.Shlex("apt-get update")).
-		Run(llb.Shlex("apt-get -y install --no-install-recommends wget gpg apt-transport-https")).Root()
+		Run(llb.Shlex("apt-get -y install --no-install-recommends wget gpg apt-transport-https cmake build-essential")).Root()
 
 	for _, v := range langs {
 		baseImg = runtimeDepsFuncMap[v](baseImg)
 	}
+
+	baseImg = copy(metacallBase, "/core", baseImg, "/")
+	baseImg = baseImg.Dir("core/build").Run(llb.Shlex("cmake -DOPTION_BUILD_LOADERS_PY=On -DOPTION_BUILD_LOADERS_NODE=On ..")).Root()
 
 	langdepsllb, err := baseImg.Marshal(context.TODO(), llb.LinuxAmd64)
 
