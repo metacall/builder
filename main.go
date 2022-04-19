@@ -201,20 +201,12 @@ func buildRpcRuntime(baseImg llb.State) llb.State {
 		Run(llb.Shlex("apt-mark hold libcurl4")).Root()
 }
 
-func copy(src llb.State, srcPath string, dest llb.State, destPath string) llb.State {
-	cpImage := llb.Image("docker.io/debian:bullseye-slim")
-	cp := cpImage.Run(llb.Shlexf("cp -a /src%s /dest%s", srcPath, destPath))
-	cp.AddMount("/src", src)
-	return cp.AddMount("/dest", dest)
-}
-
 func buildDeps(langs []LanguageType, version string) {
 
 	// Pulls Debian BaseImage from registry
 	baseImg := llb.Image("docker.io/library/debian:bullseye-slim")
 
 	metacallBase := buildMetacallBase(baseImg, version)
-
 	for _, v := range langs {
 		baseImg = envDepsFuncMap[v](baseImg)
 	}
@@ -226,10 +218,12 @@ func buildDeps(langs []LanguageType, version string) {
 		baseImg = runtimeDepsFuncMap[v](baseImg)
 	}
 
-	baseImg = copy(metacallBase, "/core", baseImg, "/")
-	baseImg = baseImg.Dir("core/build").Run(llb.Shlex("cmake -DOPTION_BUILD_LOADERS_PY=On -DOPTION_BUILD_LOADERS_NODE=On ..")).Root()
+	diffed := llb.Diff(baseImg, metacallBase)
 
-	langdepsllb, err := baseImg.Marshal(context.TODO(), llb.LinuxAmd64)
+	merged := llb.Merge([]llb.State{diffed, baseImg})
+
+	finalImg := merged.Dir("core/build").Run(llb.Shlex("cmake -DOPTION_BUILD_LOADERS_PY=On -DOPTION_BUILD_LOADERS_NODE=On ..")).Root()
+	langdepsllb, err := finalImg.Marshal(context.TODO(), llb.LinuxAmd64)
 
 	if err != nil {
 		log.Fatal(err)
