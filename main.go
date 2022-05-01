@@ -166,10 +166,10 @@ func buildCEnv(baseImg llb.State) llb.State {
 		Run(llb.Shlex("apt-get -y --no-install-recommends install cmake build-essential")).Root()
 }
 
-func buildMetacallBase(baseImg llb.State, version string) llb.State {
+func buildDevDepsBase(baseImg llb.State, version string) llb.State {
 	return baseImg.
 		Run(llb.Shlex("apt-get update")).
-		Run(llb.Shlex("apt-get -y --no-install-recommends install git ca-certificates cmake build-essential")).
+		Run(llb.Shlex("apt-get -y --no-install-recommends install git wget gpg apt-transport-https ca-certificates cmake build-essential")).
 		Run(llb.Shlexf("git clone --depth 1 --single-branch --branch=%v https://github.com/metacall/core.git", version)).
 		Run(llb.Shlex("mkdir core/build")).
 		Dir("core/build").
@@ -197,32 +197,39 @@ func buildRubyRuntime(baseImg llb.State) llb.State {
 
 func buildRpcRuntime(baseImg llb.State) llb.State {
 	return baseImg.
-		Run(llb.Shlex("apt-get -y --no-install-recommends install libcurl4")).
-		Run(llb.Shlex("apt-mark hold libcurl4")).Root()
+		Run(llb.Shlex("apt-get -y --no-install-recommends install libcurl4")).Root()
 }
 
-func buildDeps(langs []LanguageType, version string) {
+func buildlangdevimage(devDepsLang llb.State, devDepsBase llb.State) llb.State {
+	merged := llb.Merge([]llb.State{devDepsLang, devDepsBase})
+	finalImg := merged.Dir("core/build").Run(llb.Shlex("cmake -DOPTION_BUILD_LOADERS_PY=On -DOPTION_BUILD_LOADERS_NODE=On ..")).
+		Run(llb.Shlexf("make -j%v", runtime.NumCPU())).Root()
+	return finalImg
 
-	// Pulls Debian BaseImage from registry
-	baseImg := llb.Image("docker.io/library/debian:bullseye-slim")
+}
 
-	metacallBase := buildMetacallBase(baseImg, version)
+func buildImg(langs []LanguageType, version string) {
+
+	base := llb.Image("docker.io/library/debian:bullseye-slim")
+
+	devDepsBase := buildDevDepsBase(base, version)
+
+	devDepsLang := base
+
 	for _, v := range langs {
-		baseImg = envDepsFuncMap[v](baseImg)
+		devDepsLang = envDepsFuncMap[v](devDepsLang)
 	}
 
-	baseImg = baseImg.Run(llb.Shlex("apt-get update")).
-		Run(llb.Shlex("apt-get -y install --no-install-recommends wget gpg apt-transport-https cmake build-essential")).Root()
+	devLang := buildlangdevimage(devDepsLang, devDepsBase)
+	devLangBuild := llb.Diff(devDepsBase, devLang)
 
+	runtimeDeps := base.Run(llb.Shlex("apt-get update")).Root()
 	for _, v := range langs {
-		baseImg = runtimeDepsFuncMap[v](baseImg)
+		runtimeDeps = runtimeDepsFuncMap[v](runtimeDeps)
 	}
 
-	diffed := llb.Diff(baseImg, metacallBase)
+	finalImg := llb.Merge([]llb.State{devLangBuild, devDepsBase, runtimeDeps})
 
-	merged := llb.Merge([]llb.State{diffed, baseImg})
-
-	finalImg := merged.Dir("core/build").Run(llb.Shlex("cmake -DOPTION_BUILD_LOADERS_PY=On -DOPTION_BUILD_LOADERS_NODE=On ..")).Root()
 	langdepsllb, err := finalImg.Marshal(context.TODO(), llb.LinuxAmd64)
 
 	if err != nil {
@@ -243,6 +250,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	buildDeps(opt.languages, opt.version)
+	buildImg(opt.languages, opt.version)
 
 }
