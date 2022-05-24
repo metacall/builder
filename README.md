@@ -13,3 +13,18 @@ go build main.go
 ```sh
 ./main py node rb | buildctl build --output type=docker,name=imagename | docker load
 ```
+## Useful Tools
+
+[Dive](https://github.com/wagoodman/dive) can be used to analyze each layer of the generated image
+
+```sh
+dive <your-image-tag>
+```
+This opens up a window where in we can see changes in each layer of the image according to preferences.
+
+**Ctrl + L** : To show only layer changes
+
+**Tab** : To switch view from layers to current layer contents
+
+
+
