@@ -13,6 +13,18 @@ go build main.go
 ```sh
 ./main py node rb | buildctl build --output type=docker,name=imagename | docker load
 ```
+
+## Run with buildctl-daemonless
+
+Requirements:
+
+- [BuildKit](https://github.com/moby/buildkit/releases)
+- [RootlessKit](https://github.com/rootless-containers/rootlesskit/releases)
+
+```shell
+./main py node rb | ./hack/buildctl.sh build --output type=docker,name=imagename | docker load
+```
+
 ## Useful Tools
 
 [Dive](https://github.com/wagoodman/dive) can be used to analyze each layer of the generated image
