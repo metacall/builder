@@ -16,3 +16,6 @@ main
 
 # Dependency directories
 vendor/
+
+# IDE properties
+.idea/
