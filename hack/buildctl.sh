@@ -13,18 +13,42 @@ set -eu
 : ${BUILDKITD=buildkitd}
 : ${BUILDKITD_FLAGS=}
 : ${ROOTLESSKIT=rootlesskit}
+: ${LIMACTL=limactl}
 
 # $tmp holds the following files:
 # * pid
 # * addr
 # * log
 tmp=$(mktemp -d /tmp/buildctl-daemonless.XXXXXX)
-trap "kill \$(cat $tmp/pid) || true; wait \$(cat $tmp/pid) || true; rm -rf $tmp" EXIT
+
+if [ "$(uname)" == "Darwin" ]; then
+    trap "rm -rf $tmp" EXIT
+else
+    trap "kill \$(cat $tmp/pid) || true; wait \$(cat $tmp/pid) || true; rm -rf $tmp" EXIT
+fi
 
 startBuildkitd() {
     addr=
     helper=
-    if [ $(id -u) = 0 ]; then
+    if [ "$(uname)" == "Darwin" ]; then
+        echo "MacOS: $(sw_vers -productName) $(sw_vers -productVersion) detected"
+        if which buildctl >/dev/null 2>&1; then
+            echo "buildctl is installed at $(which buildctl)"
+            if which lima > /dev/null 2>&1; then
+                echo "lima is installed at $(which lima)"
+                limactlStart
+                addr="unix://$HOME/.lima/buildkit/sock/buildkitd.sock"
+                echo "$addr" > "$tmp/addr"
+                return
+            else
+                echo "Please install lima for running buildkitd using : brew install lima"
+                exit 1
+            fi
+        else
+            echo "builtctl is not installed. Please install it via brew install buildkit or build it using the moby/buildkit repo."
+            exit 1
+        fi
+    elif [ $(id -u) = 0 ]; then
         addr=unix:///run/buildkit/buildkitd.sock
     else
         addr=unix://$XDG_RUNTIME_DIR/buildkit/buildkitd.sock
@@ -34,6 +58,15 @@ startBuildkitd() {
     pid=$!
     echo $pid >$tmp/pid
     echo $addr >$tmp/addr
+}
+
+limactlStart() {
+    if ! $LIMACTL list | grep -q buildkit; then
+        echo "Instance not up, running instance..."
+        $LIMACTL start template://buildkit --tty=false
+    else
+        echo "Lima:Buildkit Instance is already up"
+    fi
 }
 
 # buildkitd supports NOTIFY_SOCKET but as far as we know, there is no easy way
