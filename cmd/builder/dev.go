@@ -20,7 +20,7 @@ func NewDevCmd() *cobra.Command {
 		Args:  cobra.NoArgs,
 	}
 
-	cmd.AddCommand(NewDevDepsBaseCmd())
+	cmd.AddCommand(NewDevDepsBaseCmd(), NewDevDepsLangCmd())
 
 	cmd.PersistentFlags().StringVarP(&branch, flagBranch, "b", "develop", "core git branch to use")
 
@@ -42,6 +42,31 @@ func NewDevDepsBaseCmd() *cobra.Command {
 
 			// set final state
 			cmd.SetContext(context.WithValue(cmd.Context(), finalKey{}, depsBase))
+			return nil
+		},
+	}
+
+	return cmd
+}
+
+func NewDevDepsLangCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "deps",
+		Short: "Build development dependencies base image for MetaCall",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			base := cmd.Context().Value(baseKey{}).(llb.State)
+			languages := cmd.Context().Value(languagesKey{}).([]string)
+
+			branch, err := cmd.Flags().GetString(flagBranch)
+			if err != nil {
+				return err
+			}
+			depsBase := staging.Deps.Base(base, branch)
+
+			state := staging.Deps.Languages(depsBase, languages)
+
+			// set final state
+			cmd.SetContext(context.WithValue(cmd.Context(), finalKey{}, state))
 			return nil
 		},
 	}
