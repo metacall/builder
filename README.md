@@ -21,6 +21,15 @@ Requirements:
 - [BuildKit](https://github.com/moby/buildkit/releases)
 - [RootlessKit](https://github.com/rootless-containers/rootlesskit/releases)
 
+MacOs : 
+
+For MacOs, you can use install buildkit using brew and lima for rootless containers, and run the script after the installation.
+
+```console
+$ brew install buildkit
+$ brew install lima
+```
+
 ```shell
 ./main py node rb | ./hack/buildctl.sh build --output type=docker,name=imagename | docker load
 ```
