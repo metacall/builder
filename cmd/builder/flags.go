@@ -21,7 +21,7 @@ func (i *DepsImageFlags) Set(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&i.Branch, "branch", "b", "develop", "eg. of script specific flags")
 }
 
-func (i *DevImageFlags) Segit restore --stagedt(cmd *cobra.Command) {
+func (i *DevImageFlags) Set(cmd *cobra.Command) {
 	// cmd.Flags().StringVarP(&i.ExampleFlag, "exampleb", "e", "", "eg. of script specific flags")
 	cmd.Flags().StringVarP(&i.Branch, "branch", "b", "develop", "eg. of script specific flags")
 }
