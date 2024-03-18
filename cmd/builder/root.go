@@ -48,7 +48,9 @@ func NewRootCmd() *cobra.Command {
 	cmd.PersistentFlags().StringVarP(&image, "image", "i", "debian:bullseye-slim", "base image of target image")
 	cmd.PersistentFlags().StringVarP(&exec, "exec", "e", "", "exec commands on base image before building (e.g. apt-get update)")
 
-	cmd.AddCommand(NewDoctorCmd(), NewDepsCmd(NewDepsOptions()))
+	cmd.AddCommand(NewDoctorCmd())
+	cmd.AddCommand(NewDepsCmd(NewDepsOptions()))
+	cmd.AddCommand(NewDevCmd(NewDevOptions()))
 
 	return cmd
 }

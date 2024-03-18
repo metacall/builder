@@ -24,7 +24,7 @@ func NewDepsCmd(o *DepOptions) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			base := cmd.Context().Value(baseKey{}).(llb.State)
 			myDeps := staging.Deps{}
-			depsBase := myDeps.Base(base, o.DepsImageFlags.Branch)
+			depsBase := myDeps.DepsBase(base, o.DepsImageFlags.Branch, args)
 			depsBase, err := o.Run(depsBase)
 			if err != nil {
 				return err

@@ -9,7 +9,8 @@ type DepsImageFlags struct {
 }
 
 type DevImageFlags struct {
-	ExampleFlag string
+	// ExampleFlag string
+	Branch string
 }
 
 type RuntimeImageFlags struct {
@@ -20,10 +21,11 @@ func (i *DepsImageFlags) Set(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&i.Branch, "branch", "b", "develop", "eg. of script specific flags")
 }
 
-func (i *DevImageFlags) Set(cmd *cobra.Command) {
-	cmd.Flags().StringVarP(&i.ExampleFlag, "exampleb", "exb", "", "eg. of script specific flags")
+func (i *DevImageFlags) Segit restore --stagedt(cmd *cobra.Command) {
+	// cmd.Flags().StringVarP(&i.ExampleFlag, "exampleb", "e", "", "eg. of script specific flags")
+	cmd.Flags().StringVarP(&i.Branch, "branch", "b", "develop", "eg. of script specific flags")
 }
 
 func (i *RuntimeImageFlags) Set(cmd *cobra.Command) {
-	cmd.Flags().StringVarP(&i.ExampleFlag, "examplec", "exc", "", "eg. of script specific flags")
+	cmd.Flags().StringVarP(&i.ExampleFlag, "examplec", "x", "", "eg. of script specific flags")
 }
