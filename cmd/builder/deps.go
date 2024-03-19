@@ -23,8 +23,7 @@ func NewDepsCmd(o *DepOptions) *cobra.Command {
 		Short: "Build development dependencies base image for MetaCall",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			base := cmd.Context().Value(baseKey{}).(llb.State)
-			myDeps := staging.Deps{}
-			depsBase := myDeps.DepsBase(base, o.DepsImageFlags.Branch, args)
+			depsBase := staging.DepsBase(base, o.DepsImageFlags.Branch, args)
 			depsBase, err := o.Run(depsBase)
 			if err != nil {
 				return err
@@ -34,7 +33,7 @@ func NewDepsCmd(o *DepOptions) *cobra.Command {
 			return nil
 
 		},
-		Example: `blablalablabol`,
+		Example: `builder deps -b develop nodejs typescript go rust wasm java c cobol`,
 	}
 	o.DepsImageFlags.Set(cmd)
 

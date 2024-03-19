@@ -14,7 +14,8 @@ type DevImageFlags struct {
 }
 
 type RuntimeImageFlags struct {
-	ExampleFlag string
+	Branch      string
+	MetacallCli bool
 }
 
 func (i *DepsImageFlags) Set(cmd *cobra.Command) {
@@ -27,5 +28,6 @@ func (i *DevImageFlags) Set(cmd *cobra.Command) {
 }
 
 func (i *RuntimeImageFlags) Set(cmd *cobra.Command) {
-	cmd.Flags().StringVarP(&i.ExampleFlag, "examplec", "x", "", "eg. of script specific flags")
+	cmd.Flags().StringVarP(&i.Branch, "branch", "b", "develop", "eg. of script specific flags")
+	cmd.Flags().BoolVar(&i.MetacallCli, "cli", false, "set to also get metacall cli in the runtime image")
 }

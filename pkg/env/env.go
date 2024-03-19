@@ -29,6 +29,9 @@ func (e Env) MetaCallClone(branch string) Env {
 
 }
 
+// Add just to get scripts into the state to prevent cloning in runtime
+// Preferlly create a state, copy from the clone stage only the tools/
+
 func (e Env) MetacallEnvBase(arg string) Env {
 
 	e.state = e.state.
@@ -48,6 +51,13 @@ func (e Env) MetaCallConfigure(arg string) Env {
 
 func (e Env) MetaCallBuild() Env {
 	e.state = e.state.Run(llb.Shlex("bash core/tools/metacall-build.sh")).
+		Root()
+
+	return e
+}
+
+func (e Env) MetacallRuntime(arg string) Env {
+	e.state = e.state.Run(llb.Shlexf("bash core/tools/metacall-runtime.sh %v", arg)).
 		Root()
 
 	return e

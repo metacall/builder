@@ -8,11 +8,9 @@ import (
 )
 
 type DevOptions struct {
-	//TODO : add ui using cli ui's. (example is "github.com/cppforlife/go-cli-ui/ui") or others
 	DevImageFlags DevImageFlags
 }
 
-// include the ui cli part here
 func NewDevOptions() *DevOptions {
 	return &DevOptions{}
 }
@@ -20,11 +18,10 @@ func NewDevOptions() *DevOptions {
 func NewDevCmd(o *DevOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "dev",
-		Short: "Build development dependencies base image for MetaCall",
+		Short: "Build development base image for MetaCall",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			base := cmd.Context().Value(baseKey{}).(llb.State)
-			myDeps := staging.Deps{}
-			depsBase := myDeps.DevBase(base, o.DevImageFlags.Branch, args)
+			depsBase := staging.DevBase(base, o.DevImageFlags.Branch, args)
 			depsBase, err := o.Run(depsBase)
 			if err != nil {
 				return err
