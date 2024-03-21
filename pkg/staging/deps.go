@@ -68,7 +68,7 @@ func DevBase(base llb.State, branch string, args []string) llb.State {
 	err := validateArgs(args)
 	if err != nil {
 		fmt.Println(err)
-		//handle error
+		// TODO : handle error
 		return base
 	}
 
@@ -87,7 +87,7 @@ func RuntimeBase(base llb.State, branch string, args []string) llb.State {
 	err := validateArgs(args)
 	if err != nil {
 		fmt.Println(err)
-		//handle error
+		// TODO : handle error
 		return base
 	}
 

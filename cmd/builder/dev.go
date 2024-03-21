@@ -21,13 +21,13 @@ func NewDevCmd(o *DevOptions) *cobra.Command {
 		Short: "Build development base image for MetaCall",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			base := cmd.Context().Value(baseKey{}).(llb.State)
-			depsBase := staging.DevBase(base, o.DevImageFlags.Branch, args)
-			depsBase, err := o.Run(depsBase)
+			devBase := staging.DevBase(base, o.DevImageFlags.Branch, args)
+			devBase, err := o.Run(devBase)
 			if err != nil {
 				return err
 			}
-			// set final state
-			cmd.SetContext(context.WithValue(cmd.Context(), finalKey{}, depsBase))
+
+			cmd.SetContext(context.WithValue(cmd.Context(), finalKey{}, devBase))
 			return nil
 
 		},

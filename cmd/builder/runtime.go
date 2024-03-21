@@ -20,7 +20,6 @@ func NewRuntimeCmd(o *RuntimeOptions) *cobra.Command {
 		Use:   "runtime",
 		Short: "Build runtime image for MetaCall",
 		RunE: func(cmd *cobra.Command, args []string) error {
-
 			base := cmd.Context().Value(baseKey{}).(llb.State)
 			devBase := staging.DevBase(base, o.RuntimeImageFlags.Branch, args)
 			runtimeBase := staging.RuntimeBase(base, o.RuntimeImageFlags.Branch, args)
@@ -34,7 +33,7 @@ func NewRuntimeCmd(o *RuntimeOptions) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			// set final state
+
 			cmd.SetContext(context.WithValue(cmd.Context(), finalKey{}, runtime))
 			return nil
 

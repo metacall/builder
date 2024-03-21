@@ -40,8 +40,6 @@ func NewRootCmd() *cobra.Command {
 			}
 
 			return llb.WriteTo(def, os.Stdout)
-			// fmt.Println("hi")
-			// return nil
 		},
 	}
 

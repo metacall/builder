@@ -12,7 +12,6 @@ type DepOptions struct {
 	DepsImageFlags DepsImageFlags
 }
 
-// include the ui cli part here
 func NewDepsOptions() *DepOptions {
 	return &DepOptions{}
 }
@@ -28,7 +27,7 @@ func NewDepsCmd(o *DepOptions) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			// set final state
+
 			cmd.SetContext(context.WithValue(cmd.Context(), finalKey{}, depsBase))
 			return nil
 
