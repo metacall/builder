@@ -87,7 +87,7 @@ func RuntimeBase(base llb.State, branch string, args []string) llb.State {
 	err := validateArgs(args)
 	if err != nil {
 		fmt.Println(err)
-		// TODO : handle error
+		// TODO : handle error in a better way
 		return base
 	}
 
@@ -104,38 +104,6 @@ func AddCli(src llb.State, dst llb.State) llb.State {
 	return dst.With(copyFrom(src, "/usr/local/bin/metacallcli*", "/usr/local/bin/metacall"))
 }
 
-func CopyFromBuilder(src llb.State, dst llb.State) llb.State {
-
-	// libraries
-	libPaths := []string{"/usr/local/lib/*.so", "/usr/local/lib/*.so*", "/usr/local/lib/*.dll", "/usr/local/lib/*.js", "/usr/local/lib/*.ts", "/usr/local/lib/*.node"}
-	libDst := "/usr/local/lib/"
-
-	// plugins
-	pluginsPath := []string{"/usr/local/lib/plugins"}
-	pluginsDst := "/usr/local/lib/plugins"
-
-	// node dependencies (and port)
-	ndpPath := []string{"/usr/local/lib/node_modules/"}
-	ndpDst := "/usr/local/lib/node_modules/"
-
-	// python dependencies
-	pydPath := []string{"/usr/local/lib/python3.11/dist-packages/metacall/"}
-	pydDst := "/usr/local/lib/python3.11/dist-packages/metacall/"
-
-	// headers
-	hdPath := []string{"/usr/local/include/metacall"}
-	hdDst := "/usr/local/include/metacall"
-
-	// configurations
-	configPath := []string{"/usr/local/share/metacall/configurations/*"}
-	configDst := "/usr/local/share/metacall/configurations/"
-
-	return dst.With(
-		copyMultiple(src, libPaths, libDst),
-		copyMultiple(src, pluginsPath, pluginsDst),
-		copyMultiple(src, ndpPath, ndpDst),
-		copyMultiple(src, pydPath, pydDst),
-		copyMultiple(src, hdPath, hdDst),
-		copyMultiple(src, configPath, configDst),
-	)
+func RemoveBuild(state llb.State) llb.State {
+	return state.Run(llb.Shlex("rm -rf build")).Root()
 }
