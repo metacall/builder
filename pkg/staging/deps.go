@@ -105,5 +105,5 @@ func AddCli(src llb.State, dst llb.State) llb.State {
 }
 
 func RemoveBuild(state llb.State) llb.State {
-	return state.Run(llb.Shlex("rm -rf build")).Root()
+	return state.File(llb.Rm("build"))
 }
