@@ -19,3 +19,4 @@ vendor/
 
 # IDE properties
 .idea/
+.vscode/
