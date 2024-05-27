@@ -2,16 +2,19 @@ package builder
 
 import (
 	"context"
+	"os"
+
 	"github.com/moby/buildkit/client/llb"
 	"github.com/spf13/cobra"
-	"os"
+)
+
+var (
+	image  string
+	exe   string
+	branch string
 )
 
 func NewRootCmd() *cobra.Command {
-	var (
-		image string
-		exec  string
-	)
 
 	cmd := &cobra.Command{
 		Use:           "builder",
@@ -21,8 +24,8 @@ func NewRootCmd() *cobra.Command {
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			// set base image
 			base := llb.Image(image)
-			if exec != "" {
-				base = base.Run(llb.Shlex(exec)).Root()
+			if exe != "" {
+				base = base.Run(llb.Shlex(exe)).Root()
 			}
 			cmd.SetContext(context.WithValue(cmd.Context(), baseKey{}, base))
 			// set languages
@@ -43,8 +46,9 @@ func NewRootCmd() *cobra.Command {
 		},
 	}
 
+	cmd.PersistentFlags().StringVarP(&branch, "branch", "b", "develop", "branch to pull metacall from")
 	cmd.PersistentFlags().StringVarP(&image, "image", "i", "debian:bullseye-slim", "base image of target image")
-	cmd.PersistentFlags().StringVarP(&exec, "exec", "e", "", "exec commands on base image before building (e.g. apt-get update)")
+	cmd.PersistentFlags().StringVarP(&exe, "exe", "e", "", "exec commands on base image before building (e.g. apt-get update)")
 
 	cmd.AddCommand(NewDoctorCmd())
 	cmd.AddCommand(NewDepsCmd(NewDepsOptions()))
