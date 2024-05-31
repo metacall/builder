@@ -13,7 +13,7 @@ func New(base llb.State) Env {
 }
 
 func (e Env) Base() Env {
-	e.state = e.state.Run(llb.Shlex("apt-get update")).
+	e.state = e.state.Run(llb.Shlex("ls -l /bin")).
 		Run(llb.Shlex("apt-get update")).
 		Run(llb.Shlex("apt-get -y --no-install-recommends install git")).
 		Root()
@@ -22,7 +22,7 @@ func (e Env) Base() Env {
 }
 
 func (e Env) MetaCallClone(branch string) Env {
-	e.state = e.state.Run(llb.Shlexf("git clone --depth 1 --single-branch --branch=%v https://github.com/metacall/core.git", branch)).
+	e.state = e.state.Run(llb.Shlexf("git -c http.sslVerify=false clone --depth 1 --single-branch --branch=%v https://github.com/metacall/core.git", branch)).
 		Run(llb.Shlex("mkdir core/build")).Root()
 
 	return e
