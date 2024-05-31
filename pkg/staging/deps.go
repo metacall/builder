@@ -2,9 +2,10 @@ package staging
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/metacall/builder/pkg/env"
 	"github.com/moby/buildkit/client/llb"
-	"strings"
 )
 
 var languageMap = map[string]string{
@@ -65,12 +66,14 @@ func DepsBase(base llb.State, branch string, args []string) llb.State {
 }
 
 func DevBase(base llb.State, branch string, args []string) llb.State {
-	err := validateArgs(args)
-	if err != nil {
-		fmt.Println(err)
-		// TODO : handle error
-		return base
-	}
+	// TODO : validate args having some bugs
+
+	// _ := validateArgs(args)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	// TODO : handle error
+	// 	return base
+	// }
 
 	cmdArgs := strings.Join(args, " ")
 

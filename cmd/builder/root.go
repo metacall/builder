@@ -10,7 +10,7 @@ import (
 
 var (
 	image  string
-	exe   string
+	exe    string
 	branch string
 )
 
