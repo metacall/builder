@@ -23,8 +23,7 @@ func (e Env) Base() Env {
 
 func (e Env) MetaCallClone(branch string) Env {
 	e.state = e.state.Run(llb.Shlexf("git -c http.sslVerify=false clone --depth 1 --single-branch --branch=%v https://github.com/metacall/core.git", branch)).
-		Run(llb.Shlex("mkdir core/build")).Root()
-
+		Root().Dir("core")
 	return e
 
 }
@@ -35,29 +34,29 @@ func (e Env) MetaCallClone(branch string) Env {
 func (e Env) MetacallEnvBase(arg string) Env {
 
 	e.state = e.state.
-		Run(llb.Shlexf("bash core/tools/metacall-environment.sh %v", arg)).
+		Run(llb.Shlexf("bash tools/metacall-environment.sh base backtrace %v", arg)).
 		Root()
 
 	return e
 }
 
 func (e Env) MetaCallConfigure(arg string) Env {
-	e.state = e.state.File(llb.Mkdir("core/build", 0777)).
-		Run(llb.Shlexf("bash core/tools/metacall-configure.sh %v", arg)).
+	e.state = e.state.File(llb.Mkdir("build", 0777)).
+		Run(llb.Shlexf("bash tools/metacall-configure.sh tests scripts ports install %v", arg)).
 		Root()
 
 	return e
 }
 
 func (e Env) MetaCallBuild() Env {
-	e.state = e.state.Run(llb.Shlex("bash core/tools/metacall-build.sh")).
+	e.state = e.state.Run(llb.Shlex("bash tools/metacall-build.sh")).
 		Root()
 
 	return e
 }
 
 func (e Env) MetacallRuntime(arg string) Env {
-	e.state = e.state.Run(llb.Shlexf("bash core/tools/metacall-runtime.sh %v", arg)).
+	e.state = e.state.Run(llb.Shlexf("bash tools/metacall-runtime.sh backtrace ports %v", arg)).
 		Root()
 
 	return e
