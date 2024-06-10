@@ -58,7 +58,9 @@ func DepsBase(base llb.State, branch string, args []string) llb.State {
 
 	cmdArgs := strings.Join(args, " ")
 
+	// fmt.Println("cmdArgs", cmdArgs)
 	return env.New(base).
+		DepsEnv().
 		Base().
 		MetaCallClone(branch).
 		MetacallEnvBase(cmdArgs).
@@ -77,6 +79,7 @@ func DevBase(base llb.State, branch string, args []string) llb.State {
 
 	cmdArgs := strings.Join(args, " ")
 
+	// fmt.Println("cmdArgs", cmdArgs)
 	return env.New(base).
 		Base().
 		MetaCallClone(branch).
