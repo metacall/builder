@@ -1,7 +1,7 @@
 package staging
 
 import (
-	"fmt"
+
 	"strings"
 
 	"github.com/metacall/builder/pkg/env"
@@ -51,14 +51,11 @@ var languageMap = map[string]string{
 func DepsBase(base llb.State, branch string, args []string) llb.State {
 	err := validateArgs(args)
 	if err != nil {
-		fmt.Println(err)
-		//handle error
-		return base
+		panic(err)
 	}
 
 	cmdArgs := strings.Join(args, " ")
 
-	// fmt.Println("cmdArgs", cmdArgs)
 	return env.New(base).
 		DepsEnv().
 		Base().
@@ -68,38 +65,34 @@ func DepsBase(base llb.State, branch string, args []string) llb.State {
 }
 
 func DevBase(base llb.State, branch string, args []string) llb.State {
-	// TODO : validate args having some bugs
+	
+	newllb := DepsBase(base, branch, args)
 
-	// _ := validateArgs(args)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	// TODO : handle error
-	// 	return base
-	// }
+	err := validateArgs(args)
+	if err != nil {
+		panic(err)
+	}
 
 	cmdArgs := strings.Join(args, " ")
 
-	// fmt.Println("cmdArgs", cmdArgs)
-	return env.New(base).
-		Base().
-		MetaCallClone(branch).
-		MetacallEnvBase(cmdArgs).
+	return env.New(newllb).
+		DevEnv().
 		MetaCallConfigure(cmdArgs).
-		MetaCallBuild().
+		MetaCallBuild(cmdArgs).
 		Root()
 }
 
 func RuntimeBase(base llb.State, branch string, args []string) llb.State {
+
 	err := validateArgs(args)
 	if err != nil {
-		fmt.Println(err)
-		// TODO : handle error in a better way
-		return base
+		panic(err)
 	}
 
 	cmdArgs := strings.Join(args, " ")
 
 	return env.New(base).
+		RuntimeEnv().
 		Base().
 		MetaCallClone(branch).
 		MetacallRuntime(cmdArgs).
@@ -111,5 +104,6 @@ func AddCli(src llb.State, dst llb.State) llb.State {
 }
 
 func RemoveBuild(state llb.State) llb.State {
-	return state.File(llb.Rm("build"))
+	return state
+	// return state.File(llb.Rm("/usr/local/bin/metacall"))
 }

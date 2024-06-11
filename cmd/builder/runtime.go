@@ -2,7 +2,7 @@ package builder
 
 import (
 	"context"
-
+	
 	"github.com/metacall/builder/pkg/staging"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/spf13/cobra"
@@ -22,8 +22,7 @@ func NewRuntimeCmd(o *RuntimeOptions) *cobra.Command {
 		Short: "Build runtime image for MetaCall",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			base := cmd.Context().Value(baseKey{}).(llb.State)
-
-			devBase := staging.RemoveBuild(staging.DevBase(base, branch, []string{""}))
+			devBase := staging.RemoveBuild(staging.DevBase(base, branch, []string{}))
 			devBaseLang := staging.RemoveBuild(staging.DevBase(base, branch, args))
 			runtimeBase := staging.RuntimeBase(base, branch, args)
 			diffed := llb.Diff(devBase, devBaseLang)
