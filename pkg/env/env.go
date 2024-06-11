@@ -32,14 +32,14 @@ func (e Env) DepsEnv() Env {
 
 func (e Env) Base() Env {
 	e.state = e.state.Run(llb.Shlex("apt-get update")).
-		Run(llb.Shlex("apt-get -y --no-install-recommends install git")).
+		Run(llb.Shlex("apt-get -y --no-install-recommends install git ca-certificates")).
 		Root()
 
 	return e
 }
 
 func (e Env) MetaCallClone(branch string) Env {
-	e.state = e.state.Run(llb.Shlexf("git -c http.sslVerify=false clone --depth 1 --single-branch --branch=%v https://github.com/metacall/core.git", branch)).
+	e.state = e.state.Run(llb.Shlexf("git clone --depth 1 --single-branch --branch=%v https://github.com/metacall/core.git", branch)).
 		Root().Dir("/usr/local/metacall/core")
 	return e
 
