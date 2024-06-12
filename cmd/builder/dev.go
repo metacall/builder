@@ -2,74 +2,43 @@ package builder
 
 import (
 	"context"
+
 	"github.com/metacall/builder/pkg/staging"
 	"github.com/moby/buildkit/client/llb"
 	"github.com/spf13/cobra"
 )
 
-const flagBranch = "branch"
+type DevOptions struct {
+	// DevImageFlags DevImageFlags
+}
 
-func NewDevCmd() *cobra.Command {
-	var (
-		branch string
-	)
+func NewDevOptions() *DevOptions {
+	return &DevOptions{}
+}
 
+func NewDevCmd(o *DevOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "dev",
-		Short: "Build development image for MetaCall",
-		Args:  cobra.NoArgs,
+		Short: "Build development base image for MetaCall",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			base := cmd.Context().Value(baseKey{}).(llb.State)
+			devBase := staging.DevBase(base, branch, args)
+			devBase, err := o.Run(devBase)
+			if err != nil {
+				return err
+			}
+
+			cmd.SetContext(context.WithValue(cmd.Context(), finalKey{}, devBase))
+			return nil
+
+		},
+		Example: `builder dev -b develop nodejs typescript go rust wasm java c cobol`,
 	}
-
-	cmd.AddCommand(NewDevDepsBaseCmd(), NewDevDepsLangCmd())
-
-	cmd.PersistentFlags().StringVarP(&branch, flagBranch, "b", "develop", "core git branch to use")
+	// o.DevImageFlags.Set(branch)
 
 	return cmd
 }
 
-func NewDevDepsBaseCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "deps-base",
-		Short: "Build development dependencies base image for MetaCall",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			base := cmd.Context().Value(baseKey{}).(llb.State)
-
-			branch, err := cmd.Flags().GetString(flagBranch)
-			if err != nil {
-				return err
-			}
-			depsBase := staging.Deps.Base(base, branch)
-
-			// set final state
-			cmd.SetContext(context.WithValue(cmd.Context(), finalKey{}, depsBase))
-			return nil
-		},
-	}
-
-	return cmd
-}
-
-func NewDevDepsLangCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "deps",
-		Short: "Build development dependencies base image for MetaCall",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			base := cmd.Context().Value(baseKey{}).(llb.State)
-			languages := cmd.Context().Value(languagesKey{}).([]string)
-
-			branch, err := cmd.Flags().GetString(flagBranch)
-			if err != nil {
-				return err
-			}
-			depsBase := staging.Deps.Base(base, branch)
-
-			state := staging.Deps.Languages(depsBase, languages)
-
-			// set final state
-			cmd.SetContext(context.WithValue(cmd.Context(), finalKey{}, state))
-			return nil
-		},
-	}
-
-	return cmd
+func (do *DevOptions) Run(devBase llb.State) (llb.State, error) {
+	return devBase, nil
 }
