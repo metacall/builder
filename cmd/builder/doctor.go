@@ -37,7 +37,7 @@ func checkRequiredBinary() []error {
 		"rootlesskit",
 		"buildkitd",
 		"buildctl",
-		"newuidmap",
+		"newuidmap", // sudo apt install uidmap
 		"newgidmap",
 		// TODO(iyear): add more
 	}

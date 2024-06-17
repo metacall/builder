@@ -5,7 +5,7 @@ Advanced builder based on Buildkit for selectively build compact Docker images s
 ## Build
 
 ```sh
-go build main.go
+go build cmd/main.go
 ```
 
 ## Run
@@ -21,7 +21,7 @@ Requirements:
 - [BuildKit](https://github.com/moby/buildkit/releases)
 - [RootlessKit](https://github.com/rootless-containers/rootlesskit/releases)
 
-MacOs : 
+MacOs:
 
 For MacOs, you can use install buildkit using brew and lima for rootless containers, and run the script after the installation.
 
@@ -30,8 +30,15 @@ $ brew install buildkit
 $ brew install lima
 ```
 
-```shell
+```sh
 ./main py node rb | ./hack/buildctl.sh build --output type=docker,name=imagename | docker load
+```
+
+## Run with docker
+
+```sh
+docker-compose up buildkit
+./main dev py | buildctl --addr="docker-container://metacall_builder_buildkit" build --output type=docker,name=imagename | docker load
 ```
 
 ## Useful Tools

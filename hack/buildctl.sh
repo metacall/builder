@@ -21,7 +21,7 @@ set -eu
 # * log
 tmp=$(mktemp -d /tmp/buildctl-daemonless.XXXXXX)
 
-if [ "$(uname)" == "Darwin" ]; then
+if [ "$(uname)" = "Darwin" ]; then
     trap "rm -rf $tmp" EXIT
 else
     trap "kill \$(cat $tmp/pid) || true; wait \$(cat $tmp/pid) || true; rm -rf $tmp" EXIT
@@ -30,7 +30,7 @@ fi
 startBuildkitd() {
     addr=
     helper=
-    if [ "$(uname)" == "Darwin" ]; then
+    if [ "$(uname)" = "Darwin" ]; then
         echo "MacOS: $(sw_vers -productName) $(sw_vers -productVersion) detected"
         if which buildctl >/dev/null 2>&1; then
             echo "buildctl is installed at $(which buildctl)"
@@ -65,7 +65,7 @@ limactlStart() {
         echo "Instance not up, running instance..."
         $LIMACTL start template://buildkit --tty=false
     else
-        echo "Lima:Buildkit Instance is already up"
+        echo "Lima: Buildkit instance is already up"
     fi
 }
 

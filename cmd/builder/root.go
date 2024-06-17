@@ -47,7 +47,7 @@ func NewRootCmd() *cobra.Command {
 	}
 
 	cmd.PersistentFlags().StringVarP(&branch, "branch", "b", "develop", "branch to pull metacall from")
-	cmd.PersistentFlags().StringVarP(&image, "image", "i", "debian:bullseye-slim", "base image of target image")
+	cmd.PersistentFlags().StringVarP(&image, "image", "i", "debian:trixie-slim", "base image of target image")
 	cmd.PersistentFlags().StringVarP(&exe, "exe", "e", "", "exec commands on base image before building (e.g. apt-get update)")
 
 	cmd.AddCommand(NewDoctorCmd())
