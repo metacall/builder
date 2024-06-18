@@ -25,7 +25,7 @@ jobs:
       - name: Test Rootless
         env:
           BUILDER_ARGS: runtime py
-        run: docker compose up rootless
+        run: docker compose up --exit-code-from rootless rootless
 
       # TODO: Implement test for all languages with BUILDER_ARGS
       - name: Test Daemon
