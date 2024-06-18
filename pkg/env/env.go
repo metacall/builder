@@ -117,7 +117,7 @@ func (e Env) MetaCallClone(branch string) Env {
 
 func (e Env) MetacallEnvBase(arg string) Env {
 	e.state = e.state.
-		Run(llb.Shlexf("bash /usr/local/metacall/tools/metacall-environment.sh relwithdebinfo base backtrace %v", arg)).Root()
+		Run(llb.Shlexf("bash /usr/local/metacall/tools/metacall-environment.sh relwithdebinfo base backtrace swig %v", arg)).Root()
 	return e
 }
 
@@ -130,7 +130,7 @@ func (e Env) MetaCallConfigure(arg string) Env {
 }
 
 func (e Env) MetaCallBuild(arg string) Env {
-	e.state = e.state.Run(llb.Shlexf("bash /usr/local/metacall/tools/metacall-build.sh relwithdebinfo %v",arg)).
+	e.state = e.state.Run(llb.Shlexf("bash /usr/local/metacall/tools/metacall-build.sh relwithdebinfo tests scripts ports install %v",arg)).
 		Root()
 
 	return e

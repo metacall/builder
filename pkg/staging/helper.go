@@ -2,6 +2,8 @@ package staging
 
 import (
 	"errors"
+	"strings"
+
 	"github.com/moby/buildkit/client/llb"
 )
 
@@ -11,13 +13,16 @@ func copyForStates(src llb.State, dst llb.State, srcpaths []string, dstpath stri
 	)
 }
 
-func validateArgs(args []string) error {
+func validateArgs(args []string) (string, error) {
+	cmdArgs := []string{}
 	for _, arg := range args {
-		if _, ok := languageMap[arg]; !ok {
-			return errors.New("Invalid language")
+		lang, ok := languageMap[arg]
+		if !ok {
+			return "", errors.New("Invalid language: " + arg)
 		}
+		cmdArgs = append(cmdArgs, lang)
 	}
-	return nil
+	return strings.Join(cmdArgs, " "), nil
 }
 
 func copyMultiple(src llb.State, srcPaths []string, destPath string) llb.StateOption {
