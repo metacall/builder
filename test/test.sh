@@ -31,8 +31,6 @@ echo "Building runtime mode with all languages."
 export BUILDER_ARGS="deps node"
 # ${DOCKER_CMD} up --exit-code-from ${DOCKER_SERVICE} ${DOCKER_SERVICE}
 ${DOCKER_CMD} up --exit-code-from ${DOCKER_SERVICE} ${DOCKER_SERVICE} registry
+${DOCKER_CMD} up -d registry
+docker run --rm -it localhost:5000/metacall/builder_output sh -c "echo 'hello'"
 ${DOCKER_CMD} down
-
-# TODO:
-# BUILDER_ARGS="runtime node" docker compose up --exit-code-from client client
-# docker run --rm -t docker.io/metacall/builder_output metacallcli --help
