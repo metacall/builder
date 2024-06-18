@@ -36,9 +36,23 @@ $ brew install lima
 
 ## Run with docker
 
+Use the environment variable BUILDER_ARGS for passing the arguments.
+
+With daemon:
 ```sh
-docker-compose up buildkit
-./main dev py | buildctl --addr="docker-container://metacall_builder_buildkit" build --output type=docker,name=imagename | docker load
+BUILDER_ARGS="runtime py" docker compose up --exit-code-from client client
+```
+
+Rootless:
+```sh
+BUILDER_ARGS="runtime node" docker compose up rootless
+```
+
+You can also run the builder binary only:
+
+```sh
+docker compose up binary
+BUILDER_ARGS="runtime rb" docker compose up binary
 ```
 
 ## Useful Tools
