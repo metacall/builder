@@ -26,7 +26,8 @@ services:
       - "apparmor=unconfined"
     # network_mode: "host"
     depends_on:
-      - registry
+      registry:
+        condition: service_healthy
 
   client:
     image: metacall/builder_client
@@ -40,12 +41,15 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       # - buildkit:/run/user/1000/buildkit/buildkitd.sock
     depends_on:
-      - buildkit
-      - registry
+      buildkit:
+        condition: service_healthy
+      registry:
+        condition: service_healthy
 
   buildkit:
     image: moby/buildkit
     container_name: metacall_builder_buildkit
+    restart: always
     privileged: true
     # volumes:
     #   - /var/run/docker.sock:/var/run/docker.sock
@@ -53,10 +57,10 @@ services:
     #   - buildkit:/run/buildkit/buildkitd.sock
     healthcheck:
       test: buildctl debug workers
-      interval: 5s
+      interval: 30s
       timeout: 30s
-      retries: 3
-      start_period: 1s
+      retries: 6
+      start_period: 5s
 
   registry:
     image: registry:2.8
@@ -64,6 +68,12 @@ services:
     restart: always
     ports:
       - 5000:5000
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://registry:5000/v2/_catalog"]
+      interval: 30s
+      timeout: 30s
+      retries: 6
+      start_period: 10s
     volumes:
       - ./registry/config.yml:/etc/docker/registry/config.yml:ro
       - ./registry/data:/var/lib/registry:rw

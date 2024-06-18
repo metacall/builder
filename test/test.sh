@@ -29,7 +29,8 @@ DOCKER_SERVICE=${1:-rootless}
 echo "Building runtime mode with all languages."
 # export BUILDER_ARGS="runtime py node rb"
 export BUILDER_ARGS="deps node"
-${DOCKER_CMD} up --exit-code-from ${DOCKER_SERVICE} ${DOCKER_SERVICE}
+# ${DOCKER_CMD} up --exit-code-from ${DOCKER_SERVICE} ${DOCKER_SERVICE}
+${DOCKER_CMD} up --exit-code-from ${DOCKER_SERVICE} ${DOCKER_SERVICE} registry
 ${DOCKER_CMD} down
 
 # TODO:
