@@ -1,7 +1,7 @@
 version: "3.7"
 
-volumes:
-  buildkit:
+# volumes:
+#   buildkit:
 
 services:
   binary:
@@ -24,7 +24,9 @@ services:
     security_opt:
       - "seccomp=unconfined"
       - "apparmor=unconfined"
-    network_mode: "host"
+    # network_mode: "host"
+    depends_on:
+      - registry
 
   client:
     image: metacall/builder_client
@@ -36,21 +38,32 @@ services:
     entrypoint: /home/builder.sh ${BUILDER_ARGS:-}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - buildkit:/run/user/1000/buildkit/buildkitd.sock
+      # - buildkit:/run/user/1000/buildkit/buildkitd.sock
     depends_on:
       - buildkit
+      - registry
 
   buildkit:
     image: moby/buildkit
     container_name: metacall_builder_buildkit
     privileged: true
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /run/containerd/containerd.sock:/run/containerd/containerd.sock
-      - buildkit:/run/buildkit/buildkitd.sock
+    # volumes:
+    #   - /var/run/docker.sock:/var/run/docker.sock
+    #   - /run/containerd/containerd.sock:/run/containerd/containerd.sock
+    #   - buildkit:/run/buildkit/buildkitd.sock
     healthcheck:
       test: buildctl debug workers
       interval: 5s
       timeout: 30s
       retries: 3
       start_period: 1s
+
+  registry:
+    image: registry:2.8
+    container_name: metacall_builder_registry
+    restart: always
+    ports:
+      - 5000:5000
+    volumes:
+      - ./registry/config.yml:/etc/docker/registry/config.yml:ro
+      - ./registry/data:/var/lib/registry:rw

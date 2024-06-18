@@ -1,6 +1,10 @@
 # Main executable
 main
 
+# Registry shared folder
+registry/data/**
+!registry/data/.gitkeep
+
 # Binaries for programs and plugins
 *.exe
 *.exe~

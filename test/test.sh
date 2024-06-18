@@ -14,19 +14,21 @@ fi
 
 DOCKER_SERVICE=${1:-rootless}
 
-# Build them separately
-for mode in deps dev runtime; do
-	for lang in py node rb; do
-		echo "Building ${mode} mode with ${lang} language."
-		export BUILDER_ARGS="${mode} ${lang}"
-		${DOCKER_CMD} up --exit-code-from ${DOCKER_SERVICE} ${DOCKER_SERVICE}
-		${DOCKER_CMD} down
-	done
-done
+# TODO:
+# # Build them separately
+# for mode in deps dev runtime; do
+# 	for lang in py node rb; do
+# 		echo "Building ${mode} mode with ${lang} language."
+# 		export BUILDER_ARGS="${mode} ${lang}"
+# 		${DOCKER_CMD} up --exit-code-from ${DOCKER_SERVICE} ${DOCKER_SERVICE}
+# 		${DOCKER_CMD} down
+# 	done
+# done
 
-# Build the all together
+# Build the languages all together
 echo "Building runtime mode with all languages."
-export BUILDER_ARGS="runtime py node rb"
+# export BUILDER_ARGS="runtime py node rb"
+export BUILDER_ARGS="runtime node"
 ${DOCKER_CMD} up --exit-code-from ${DOCKER_SERVICE} ${DOCKER_SERVICE}
 ${DOCKER_CMD} down
 

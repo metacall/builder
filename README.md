@@ -45,13 +45,19 @@ BUILDER_ARGS="runtime py" docker compose up --exit-code-from client client
 
 Rootless:
 ```sh
-BUILDER_ARGS="runtime node" docker compose up rootless
+BUILDER_ARGS="runtime node" docker compose up --exit-code-from rootless rootless
 ```
 
 You can also run the builder binary only:
 
 ```sh
-BUILDER_ARGS="runtime rb" docker compose up binary
+BUILDER_ARGS="runtime rb" docker compose up --exit-code-from binary binary
+```
+
+## Linter
+
+```sh
+docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v1.59.1 golangci-lint run -v --enable-all
 ```
 
 ## Useful Tools
