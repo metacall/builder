@@ -13,7 +13,7 @@ func New(base llb.State) Env {
 }
 
 func (e Env) DepsEnv() Env {
-	e.state = e.state.Dir("/usr/local/metacall").
+	e.state = e.state.
 		AddEnv(
 			"DEBIAN_FRONTEND",
 			"noninteractive",
@@ -31,25 +31,25 @@ func (e Env) DepsEnv() Env {
 }
 
 func (e Env) DevEnv() Env {
-	e.state = e.state.Dir("/usr/local/metacall/core").
+	e.state = e.state.Dir("/usr/local/metacall").
 		AddEnv(
 			"LOADER_LIBRARY_PATH",
-			"/usr/local/metacall/core/build",
+			"/usr/local/metacall/build",
 		).AddEnv(
 			"LOADER_SCRIPT_PATH",
-			"/usr/local/metacall/core/build/scripts",
+			"/usr/local/metacall/build/scripts",
 		).AddEnv(
 			"CONFIGURATION_PATH",
-			"/usr/local/metacall/core/build/configurations/global.json",
+			"/usr/local/metacall/build/configurations/global.json",
 		).AddEnv(
 			"SERIAL_LIBRARY_PATH",
-			"/usr/local/metacall/core/build",
+			"/usr/local/metacall/build",
 		).AddEnv(
 			"DETOUR_LIBRARY_PATH",
-			"/usr/local/metacall/core/build",
+			"/usr/local/metacall/build",
 		).AddEnv(
 			"PORT_LIBRARY_PATH",
-			"/usr/local/metacall/core/build",
+			"/usr/local/metacall/build",
 		).AddEnv(
 			"NODE_PATH",
 			"/usr/lib/node_modules",
@@ -106,35 +106,38 @@ func (e Env) Base() Env {
 }
 
 func (e Env) MetaCallClone(branch string) Env {
-	e.state = e.state.Run(llb.Shlexf("git clone --depth 1 --single-branch --branch=%v https://github.com/metacall/core.git", branch)).
-		Root().Dir("/usr/local/metacall/core")
-	return e
+	a := e.state
+	a = a.Run(llb.Shlexf("git clone --depth 1 --single-branch --branch=%v https://github.com/metacall/core.git", branch)).
+	Root()
 
+	e.state = copy(a, "/core/", e.state, "/usr/local/metacall")
+
+	return e
 }
 
 func (e Env) MetacallEnvBase(arg string) Env {
 	e.state = e.state.
-		Run(llb.Shlexf("bash /usr/local/metacall/core/tools/metacall-environment.sh relwithdebinfo base backtrace %v", arg)).Root()
+		Run(llb.Shlexf("bash /usr/local/metacall/tools/metacall-environment.sh relwithdebinfo base backtrace %v", arg)).Root()
 	return e
 }
 
 func (e Env) MetaCallConfigure(arg string) Env {
-	e.state = e.state.File(llb.Mkdir("build", 0777)).Dir("/usr/local/metacall/core/build").
-		Run(llb.Shlexf("bash /usr/local/metacall/core/tools/metacall-configure.sh relwithdebinfo tests scripts ports install %v", arg)).
+	e.state = e.state.File(llb.Mkdir("build", 0777)).Dir("/usr/local/metacall/build").
+		Run(llb.Shlexf("bash /usr/local/metacall/tools/metacall-configure.sh relwithdebinfo tests scripts ports install %v", arg)).
 		Root()
 
 	return e
 }
 
 func (e Env) MetaCallBuild(arg string) Env {
-	e.state = e.state.Run(llb.Shlexf("bash /usr/local/metacall/core/tools/metacall-build.sh relwithdebinfo %v",arg)).
+	e.state = e.state.Run(llb.Shlexf("bash /usr/local/metacall/tools/metacall-build.sh relwithdebinfo %v",arg)).
 		Root()
 
 	return e
 }
 
 func (e Env) MetacallRuntime(arg string) Env {
-	e.state = e.state.Run(llb.Shlexf("bash /usr/local/metacall/core/tools/metacall-runtime.sh base backtrace ports clean %v", arg)).
+	e.state = e.state.Run(llb.Shlexf("bash /usr/local/metacall/tools/metacall-runtime.sh base backtrace ports clean %v", arg)).
 		Root()
 
 	return e
@@ -142,4 +145,12 @@ func (e Env) MetacallRuntime(arg string) Env {
 
 func (e Env) Root() llb.State {
 	return e.state
+}
+
+func copy(src llb.State, srcPath string, dest llb.State, destPath string) llb.State {
+	return dest.File(llb.Copy(src, srcPath, destPath, &llb.CopyInfo{
+		AllowWildcard:  true,
+		AttemptUnpack:  true,
+		CreateDestPath: true,
+	}))
 }
