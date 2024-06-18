@@ -11,8 +11,6 @@ services:
       context: .
       dockerfile: Dockerfile
       target: builder_binary
-    environment:
-      BUILDKIT_NO_CLIENT_TOKEN: "true"
     entrypoint: /builder ${BUILDER_ARGS:-}
 
   rootless:
@@ -22,8 +20,6 @@ services:
       context: .
       dockerfile: Dockerfile
       target: builder_rootless
-    environment:
-      BUILDKIT_NO_CLIENT_TOKEN: "true"
     entrypoint: /home/user/builder.sh ${BUILDER_ARGS:-}
     security_opt:
       - "seccomp=unconfined"
