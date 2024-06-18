@@ -26,7 +26,9 @@ jobs:
         run: docker compose build
 
       - name: Test Binary
-        run: ./test/test.sh binary
+        env:
+          BUILDER_ARGS: "runtime rb"
+        run: docker compose up --exit-code-from binary binary
 
       - name: Test Rootless
         run: ./test/test.sh rootless
