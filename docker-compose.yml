@@ -8,7 +8,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: builder_binary
-    entrypoint: /builder $BUILDER_ARGS
+    entrypoint: /builder ${BUILDER_ARGS:-}
 
   rootless:
     image: metacall/builder_rootless
@@ -17,7 +17,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: builder_rootless
-    entrypoint: /home/user/builder.sh $BUILDER_ARGS
+    entrypoint: /home/user/builder.sh ${BUILDER_ARGS:-}
     security_opt:
       - "seccomp=unconfined"
       - "apparmor=unconfined"
@@ -30,10 +30,10 @@ services:
       context: .
       dockerfile: Dockerfile
       target: builder_client
-    entrypoint: /home/builder.sh $BUILDER_ARGS
+    entrypoint: /home/builder.sh ${BUILDER_ARGS:-}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /run/buildkit/buildkitd.sock:/run/buildkit/buildkitd.sock
+      # - /run/buildkit/buildkitd.sock:/run/buildkit/buildkitd.sock
     depends_on:
       - buildkit
 
