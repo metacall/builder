@@ -33,7 +33,7 @@ export BUILDER_ARGS="dev node"
 ${DOCKER_CMD} up --exit-code-from ${DOCKER_SERVICE} ${DOCKER_SERVICE} registry
 ${DOCKER_CMD} up -d registry
 while [ ! "$(docker inspect --format '{{json .State.Health.Status }}' metacall_builder_registry)" = "\"healthy\"" ]; do
-	sleep 1
+	sleep 5
 done
 docker run --rm -t localhost:5000/metacall/builder_output sh -c "metacallcli --help"
 ${DOCKER_CMD} down
