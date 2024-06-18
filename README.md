@@ -51,7 +51,6 @@ BUILDER_ARGS="runtime node" docker compose up rootless
 You can also run the builder binary only:
 
 ```sh
-docker compose up binary
 BUILDER_ARGS="runtime rb" docker compose up binary
 ```
 
