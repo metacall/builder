@@ -22,6 +22,12 @@ jobs:
         run:  docker compose build
 
       # TODO: Implement test for all languages with BUILDER_ARGS
+      - name: Test Binary
+        env:
+          BUILDER_ARGS: runtime py
+        run: docker compose up --exit-code-from binary binary
+
+      # TODO: Implement test for all languages with BUILDER_ARGS
       - name: Test Rootless
         env:
           BUILDER_ARGS: runtime py
