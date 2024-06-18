@@ -36,7 +36,7 @@ services:
     entrypoint: /home/builder.sh ${BUILDER_ARGS:-}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      # - buildkit:/run/user/1000/buildkit/buildkitd.sock
+      - buildkit:/run/user/1000/buildkit/buildkitd.sock
     depends_on:
       - buildkit
 
@@ -44,10 +44,10 @@ services:
     image: moby/buildkit
     container_name: metacall_builder_buildkit
     privileged: true
-    # volumes:
-    #   - /var/run/docker.sock:/var/run/docker.sock
-    #   - /run/containerd/containerd.sock:/run/containerd/containerd.sock
-    #   - buildkit:/run/buildkit/buildkitd.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /run/containerd/containerd.sock:/run/containerd/containerd.sock
+      - buildkit:/run/buildkit/buildkitd.sock
     healthcheck:
       test: buildctl debug workers
       interval: 5s

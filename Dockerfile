@@ -47,7 +47,7 @@ COPY --from=builder_binary --chown=root:root /builder /home/builder
 RUN apk add --no-cache docker
 
 RUN printf '#!/bin/sh\n\
-/home/builder $@ | buildctl --addr="docker-container://metacall_builder_buildkit" build --output type=image,name=docker.io/metacall/builder_output,push=false\n'\
+/home/builder $@ | buildctl --addr="docker-container://metacall_builder_buildkit" build --output type=docker,name=docker.io/metacall/builder_output | docker load\n'\
 >> /home/builder.sh \
     && chmod 700 /home/builder.sh \
     && chmod 700 /home/builder
