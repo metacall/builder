@@ -21,20 +21,17 @@ jobs:
       - name: Build
         run:  docker compose build
 
-      # TODO: Implement test for all languages with BUILDER_ARGS
       - name: Test Binary
         env:
-          BUILDER_ARGS: dev py
-        run: docker compose up --exit-code-from binary binary
+          DOCKER_SERVICE: binary
+        run: ./test/test.sh
 
-      # TODO: Implement test for all languages with BUILDER_ARGS
       - name: Test Rootless
         env:
-          BUILDER_ARGS: dev py
-        run: docker compose up --exit-code-from rootless rootless
+          DOCKER_SERVICE: rootless
+        run: ./test/test.sh
 
-      # TODO: Implement test for all languages with BUILDER_ARGS
       - name: Test Daemon
         env:
-          BUILDER_ARGS: dev py
-        run: docker compose up --exit-code-from client client
+          DOCKER_SERVICE: client
+        run: ./test/test.sh
