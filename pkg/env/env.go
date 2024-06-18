@@ -31,7 +31,7 @@ func (e Env) DepsEnv() Env {
 }
 
 func (e Env) DevEnv() Env {
-	e.state = e.state.Dir("/usr/local/metacall").
+	e.state = e.state.
 		AddEnv(
 			"LOADER_LIBRARY_PATH",
 			"/usr/local/metacall/build",
@@ -64,7 +64,7 @@ func (e Env) DevEnv() Env {
 }
 
 func (e Env) RuntimeEnv() Env {
-	e.state = e.state.Dir("/usr/local/metacall").
+	e.state = e.state.
 	AddEnv(
 		"DEBIAN_FRONTEND",
 		"noninteractive",
@@ -130,14 +130,14 @@ func (e Env) MetaCallConfigure(arg string) Env {
 }
 
 func (e Env) MetaCallBuild(arg string) Env {
-	e.state = e.state.Run(llb.Shlexf("bash /usr/local/metacall/tools/metacall-build.sh relwithdebinfo tests scripts ports install %v",arg)).
+	e.state = e.state.Run(llb.Shlexf("bash /usr/local/metacall/tools/metacall-build.sh relwithdebinfo tests scripts ports install pack %v",arg)).
 		Root()
 
 	return e
 }
 
 func (e Env) MetacallRuntime(arg string) Env {
-	e.state = e.state.Run(llb.Shlexf("bash /usr/local/metacall/tools/metacall-runtime.sh base backtrace ports clean %v", arg)).
+	e.state = e.state.Run(llb.Shlexf("bash /usr/local/metacall/tools/metacall-runtime.sh base ports clean %v", arg)).
 		Root()
 
 	return e
