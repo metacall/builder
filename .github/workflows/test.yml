@@ -1,0 +1,34 @@
+name: Build and Test MetaCall Builder
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*.*.*"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Build
+        run:  docker compose build
+
+      # TODO: Implement test for all languages with BUILDER_ARGS
+      - name: Test Rootless
+        env:
+          BUILDER_ARGS: runtime py
+        run: docker compose up rootless
+
+      # TODO: Implement test for all languages with BUILDER_ARGS
+      - name: Test Daemon
+        env:
+          BUILDER_ARGS: runtime py
+        run: docker compose up --exit-code-from client client

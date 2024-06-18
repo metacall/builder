@@ -47,22 +47,7 @@ COPY --from=builder_binary --chown=root:root /builder /home/builder
 RUN apk add --no-cache docker
 
 RUN printf '#!/bin/sh\n\
-/home/builder deps py | buildctl --addr="docker-container://metacall_builder_buildkit" build --output type=docker,name=imagename\n'\
+/home/builder $@ | buildctl --addr="docker-container://metacall_builder_buildkit" build --output type=docker,name=imagename\n'\
 >> /home/builder.sh \
     && chmod 700 /home/builder.sh \
     && chmod 700 /home/builder
-
-# entrypoint: buildctl-daemonless.sh
-# command: ["build", "--frontend", "dockerfile.v0", "--local", "context=/builder", "--local", "dockerfile=/builder/Dockerfile"]
-
-# docker run \
-#     -it \
-#     --rm \
-#     --privileged \
-#     -v /path/to/dir:/tmp/work \
-#     --entrypoint buildctl-daemonless.sh \
-#     moby/buildkit:master \
-#         build \
-#         --frontend dockerfile.v0 \
-#         --local context=/tmp/work \
-#         --local dockerfile=/tmp/work

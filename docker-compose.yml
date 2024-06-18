@@ -1,27 +1,27 @@
 version: "3.7"
 
 services:
-  # binary:
-  #   image: metacall/builder_binary
-  #   container_name: metacall_builder_binary
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #     target: builder_binary
-  #   entrypoint: /builder
+  binary:
+    image: metacall/builder_binary
+    container_name: metacall_builder_binary
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder_binary
+    entrypoint: /builder
 
-  # rootless:
-  #   image: metacall/builder_rootless
-  #   container_name: metacall_builder_rootless
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #     target: builder_rootless
-  #   entrypoint: /home/user/builder.sh
-  #   security_opt:
-  #     - "seccomp=unconfined"
-  #     - "apparmor=unconfined"
-  #   network_mode: "host"
+  rootless:
+    image: metacall/builder_rootless
+    container_name: metacall_builder_rootless
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder_rootless
+    entrypoint: /home/user/builder.sh $BUILDER_ARGS
+    security_opt:
+      - "seccomp=unconfined"
+      - "apparmor=unconfined"
+    network_mode: "host"
 
   client:
     image: metacall/builder_client
@@ -30,8 +30,9 @@ services:
       context: .
       dockerfile: Dockerfile
       target: builder_client
-    entrypoint: /home/builder.sh
-    network_mode: "host"
+    entrypoint: /home/builder.sh $BUILDER_ARGS
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - buildkit
 
@@ -39,24 +40,9 @@ services:
     image: moby/buildkit
     container_name: metacall_builder_buildkit
     privileged: true
-    network_mode: "host"
     healthcheck:
       test: buildctl debug workers
       interval: 5s
       timeout: 30s
       retries: 3
       start_period: 1s
-
-# docker run -it --rm --privileged --entrypoint buildctl-daemonless.sh moby/buildkit:master build
-
-# docker run \
-#     -it \
-#     --rm \
-#     --privileged \
-#     -v /path/to/dir:/tmp/work \
-#     --entrypoint buildctl-daemonless.sh \
-#     moby/buildkit:master \
-#         build \
-#         --frontend dockerfile.v0 \
-#         --local context=/tmp/work \
-#         --local dockerfile=/tmp/work
