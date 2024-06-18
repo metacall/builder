@@ -33,6 +33,7 @@ services:
     entrypoint: /home/builder.sh $BUILDER_ARGS
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /run/buildkit/buildkitd.sock:/run/buildkit/buildkitd.sock
     depends_on:
       - buildkit
 
