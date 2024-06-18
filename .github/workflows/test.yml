@@ -22,16 +22,10 @@ jobs:
         run:  docker compose build
 
       - name: Test Binary
-        env:
-          DOCKER_SERVICE: binary
-        run: ./test/test.sh
+        run: ./test/test.sh binary
 
       - name: Test Rootless
-        env:
-          DOCKER_SERVICE: rootless
-        run: ./test/test.sh
+        run: ./test/test.sh rootless
 
       - name: Test Daemon
-        env:
-          DOCKER_SERVICE: client
-        run: ./test/test.sh
+        run: ./test/test.sh client

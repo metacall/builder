@@ -20,6 +20,7 @@ for mode in deps dev runtime; do
 		echo "Building ${mode} mode with ${lang} language."
 		export BUILDER_ARGS="${mode} ${lang}"
 		${DOCKER_CMD} up --exit-code-from ${DOCKER_SERVICE} ${DOCKER_SERVICE}
+		${DOCKER_CMD} down
 	done
 done
 
@@ -27,3 +28,4 @@ done
 echo "Building runtime mode with all languages."
 export BUILDER_ARGS="runtime py node rb"
 ${DOCKER_CMD} up --exit-code-from ${DOCKER_SERVICE} ${DOCKER_SERVICE}
+${DOCKER_CMD} down
