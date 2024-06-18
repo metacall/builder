@@ -36,7 +36,7 @@ $ brew install lima
 
 ## Run with docker
 
-Use the environment variable BUILDER_ARGS for passing the arguments.
+Use the environment variable `BUILDER_ARGS` for passing the arguments.
 
 With daemon:
 ```sh
