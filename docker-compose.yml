@@ -1,7 +1,7 @@
 version: "3.7"
 
-# volumes:
-#   buildkit:
+volumes:
+  buildkit:
 
 services:
   binary:
