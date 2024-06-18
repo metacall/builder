@@ -40,6 +40,6 @@ func NewDepsCmd(o *DepOptions) *cobra.Command {
 }
 
 func (do *DepOptions) Run(depsBase llb.State) (llb.State, error) {
-	return depsBase.Dir("/").Run(llb.Shlex("rm -rf /usr/local/metacall")).Root(), nil
-	return depsBase , nil
+	// return depsBase.Dir("/").Run(llb.Shlex("rm -rf /usr/local/metacall")).Root(), nil
+	return depsBase, nil
 }

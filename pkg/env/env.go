@@ -13,7 +13,7 @@ func New(base llb.State) Env {
 }
 
 func (e Env) DepsEnv() Env {
-	e.state = e.state.Dir("/usr/local/metacall").
+	e.state = e.state.
 		AddEnv(
 			"DEBIAN_FRONTEND",
 			"noninteractive",
@@ -137,6 +137,11 @@ func (e Env) MetacallRuntime(arg string) Env {
 	e.state = e.state.Run(llb.Shlexf("bash /usr/local/metacall/core/tools/metacall-runtime.sh base backtrace ports clean %v", arg)).
 		Root()
 
+	return e
+}
+
+func (e Env) SetState(state llb.State) Env {
+	e.state = state
 	return e
 }
 

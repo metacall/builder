@@ -56,10 +56,16 @@ func DepsBase(base llb.State, branch string, args []string) llb.State {
 
 	cmdArgs := strings.Join(args, " ")
 
-	return env.New(base).
+	a := env.New(base).Base().MetaCallClone(branch).Root()
+
+	e := env.New(base)
+	b := e.Base().Root()
+
+	b = copy(a, "/core/", b, "/usr/local/metacall/")
+	e.SetState(b)
+
+	return e.
 		DepsEnv().
-		Base().
-		MetaCallClone(branch).
 		MetacallEnvBase(cmdArgs).
 		Root()
 }
