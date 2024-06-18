@@ -76,4 +76,4 @@ services:
       start_period: 10s
     volumes:
       - ./registry/config.yml:/etc/docker/registry/config.yml:ro
-      - ./registry/data:/var/lib/registry:rw
+      # - ./registry/data:/var/lib/registry:rw
