@@ -81,7 +81,7 @@ func RuntimeBase(base llb.State, branch string, args []string) llb.State {
 }
 
 func AddCli(src llb.State, dst llb.State) llb.State {
-	return dst.With(copyFrom(src, "/usr/local/bin/metacallcli*", "/usr/local/bin/metacall"))
+	return dst.With(copyFrom(src, "/usr/local/bin/metacallcli*", "/usr/local/bin/"))
 }
 
 func RemoveBuild(state llb.State) llb.State {
