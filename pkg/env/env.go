@@ -138,7 +138,7 @@ func (e Env) MetaCallBuild(arg string) Env {
 
 func (e Env) MetacallRuntime(arg string) Env {
 	e.state = e.state.Run(llb.Shlexf("bash /usr/local/metacall/tools/metacall-runtime.sh base ports clean %v", arg)).
-		Root()
+		Root() // TODO: Add backtrace
 
 	return e
 }
