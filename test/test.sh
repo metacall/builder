@@ -11,8 +11,21 @@ else
 	exit 1
 fi
 
-
 DOCKER_SERVICE=${1:-rootless}
+
+build() {
+	${DOCKER_CMD} up --exit-code-from ${DOCKER_SERVICE} ${DOCKER_SERVICE}
+}
+
+test() {
+	build
+	${DOCKER_CMD} up -d registry
+	while [ ! "$(docker inspect --format '{{json .State.Health.Status }}' metacall_builder_registry)" = "\"healthy\"" ]; do
+		sleep 5
+	done
+	docker run --rm -v ./test/suites:/test -t localhost:5000/metacall/builder_output sh -c "metacallcli $1" | grep "$2"
+	${DOCKER_CMD} down
+}
 
 # TODO:
 # # Build them separately
@@ -25,15 +38,12 @@ DOCKER_SERVICE=${1:-rootless}
 # 	done
 # done
 
-# Build the languages all together
-echo "Building runtime mode with all languages."
-# export BUILDER_ARGS="runtime py node rb"
+# Build the dev image with NodeJS language
+echo "Building dev mode with NodeJS language."
 export BUILDER_ARGS="dev node"
-# ${DOCKER_CMD} up --exit-code-from ${DOCKER_SERVICE} ${DOCKER_SERVICE}
-${DOCKER_CMD} up --exit-code-from ${DOCKER_SERVICE} ${DOCKER_SERVICE} registry
-${DOCKER_CMD} up -d registry
-while [ ! "$(docker inspect --format '{{json .State.Health.Status }}' metacall_builder_registry)" = "\"healthy\"" ]; do
-	sleep 5
-done
-docker run --rm -t localhost:5000/metacall/builder_output sh -c "metacallcli --help"
-${DOCKER_CMD} down
+test node/test.js "0123456789"
+
+# Build the cli image with languages all together
+echo "Building cli mode with all languages."
+export BUILDER_ARGS="runtime --cli py node rb"
+test node/test.js "0123456789"
