@@ -130,7 +130,7 @@ func (e Env) MetaCallConfigure(arg string) Env {
 }
 
 func (e Env) MetaCallBuild(arg string) Env {
-	e.state = e.state.Run(llb.Shlexf("bash /usr/local/metacall/tools/metacall-build.sh relwithdebinfo tests scripts ports install pack %v",arg)).
+	e.state = e.state.Run(llb.Shlexf("bash /usr/local/metacall/tools/metacall-build.sh relwithdebinfo tests scripts ports install %v",arg)).
 		Root()
 
 	return e
