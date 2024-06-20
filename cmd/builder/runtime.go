@@ -21,6 +21,9 @@ func NewRuntimeCmd(o *RuntimeOptions) *cobra.Command {
 		Use:   "runtime",
 		Short: "Build runtime image for MetaCall",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if o.RuntimeImageFlags.MetacallCli {
+				args = append(args,"node")
+			}
 			base := cmd.Context().Value(baseKey{}).(llb.State)
 			devBase := staging.RemoveBuild(staging.DevBase(base, branch, []string{}))
 			devBaseLang := staging.RemoveBuild(staging.DevBase(base, branch, args))
@@ -30,7 +33,7 @@ func NewRuntimeCmd(o *RuntimeOptions) *cobra.Command {
 			runtime := llb.Merge([]llb.State{runtimeBase, diffed})
 
 			if o.RuntimeImageFlags.MetacallCli {
-				runtime = staging.AddCli(devBase, runtime)
+				runtime = staging.AddCli(devBaseLang, runtime)
 			}
 
 			runtime, err := o.Run(runtime)

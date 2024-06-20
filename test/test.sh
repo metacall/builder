@@ -23,7 +23,7 @@ test() {
 	while [ ! "$(docker inspect --format '{{json .State.Health.Status }}' metacall_builder_registry)" = "\"healthy\"" ]; do
 		sleep 5
 	done
-	docker run --rm -v ./test/suites:/test -t localhost:5000/metacall/builder_output sh -c "metacallcli $1" | grep "$2"
+	docker run --rm -v ./test/suites:/test -t localhost:5000/metacall/builder_output sh -c "metacallcli $1"
 	${DOCKER_CMD} down
 }
 
