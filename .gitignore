@@ -24,3 +24,4 @@ vendor/
 # IDE properties
 .idea/
 .vscode/
+.DS_Store
