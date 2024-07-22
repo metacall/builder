@@ -11,23 +11,41 @@ go build cmd/main.go
 ## Run
 
 ```sh
-./main py node rb | buildctl build --output type=docker,name=imagename | docker load
+./main runtime py node rb | buildctl build --output type=docker,name=imagename | docker load
 ```
+if you want to push the image to a registry, you can use the following command:
+
+```sh
+./main runtime py node rb | buildctl build --output type=image,name=docker.io/ashpect/testimage,push=true
+```
+After getting the llb, you can use various buildkit args to specify output
+
 
 ## Run with buildctl-daemonless
 
-Requirements:
+#### Linux Requirements:
 
 - [BuildKit](https://github.com/moby/buildkit/releases)
 - [RootlessKit](https://github.com/rootless-containers/rootlesskit/releases)
 
-MacOs:
+#### MacOs:
 
 For MacOs, you can use install buildkit using brew and lima for rootless containers, and run the script after the installation.
 
 ```console
 $ brew install buildkit
 $ brew install lima
+```
+
+#### Using Docker:
+
+If you don't have buildkit installed, you can use the docker image to run the buildkit daemon.
+```sh
+docker run --rm --privileged -d --name buildkit moby/buildkit
+```
+Export the environment variable `BUILDKIT_HOST` to point to the buildkit daemon.
+```sh
+export BUILDKIT_HOST=docker-container://buildkit
 ```
 
 ```sh
