@@ -47,7 +47,10 @@ func NewRootCmd() *cobra.Command {
 	}
 
 	cmd.PersistentFlags().StringVarP(&branch, "branch", "b", "develop", "branch to pull metacall from")
-	cmd.PersistentFlags().StringVarP(&image, "image", "i", "debian:trixie-slim", "base image of target image")
+	// TODO: In metacall/core the Python 3.12 is failing, which is the one comming from trixie-slim,
+	// let's use bookworm as default until the bugs are solved
+	// cmd.PersistentFlags().StringVarP(&image, "image", "i", "debian:trixie-slim", "base image of target image")
+	cmd.PersistentFlags().StringVarP(&image, "image", "i", "debian:bookworm-slim", "base image of target image")
 	cmd.PersistentFlags().StringVarP(&exe, "exe", "e", "", "exec commands on base image before building (e.g. apt-get update)")
 
 	cmd.AddCommand(NewDoctorCmd())
