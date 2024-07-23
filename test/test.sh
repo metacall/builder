@@ -27,7 +27,15 @@ test() {
 	while [ ! "$(docker inspect --format '{{json .State.Health.Status }}' metacall_builder_registry)" = "\"healthy\"" ]; do
 		sleep 5
 	done
-	docker run --rm -v ./test/suites:/test -t localhost:5000/metacall/builder_output sh -c "metacallcli $1"
+	DOCKER_OUTPUT=`docker run --rm -v ./test/suites:/test -t localhost:5000/metacall/builder_output sh -c "metacallcli test/$1"`
+
+	if [ ! "${DOCKER_OUTPUT}" = "$2" ]; then
+		echo "Failed to run test: $1"
+		echo "Expected output was: $2"
+		echo "Test output was: ${DOCKER_OUTPUT}"
+		exit 1
+	fi
+
 	${DOCKER_CMD} down
 }
 
