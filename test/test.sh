@@ -4,11 +4,15 @@ set -exuo
 
 if [ -x "$(command -v docker-compose)" ]; then
 	DOCKER_CMD=docker-compose
-elif $(docker compose &>/dev/null) && [ $? -eq 0 ]; then
-	DOCKER_CMD="docker compose"
 else
-	echo "ERROR: neither \"docker-compose\" nor \"docker compose\" appear to be installed."
-	exit 1
+	docker compose &>/dev/null
+
+	if [ $? -eq 0 ]; then
+		DOCKER_CMD="docker compose"
+	else
+		echo "ERROR: neither \"docker-compose\" nor \"docker compose\" appear to be installed."
+		exit 1
+	fi
 fi
 
 DOCKER_SERVICE=${1:-rootless}
