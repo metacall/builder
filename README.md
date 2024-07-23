@@ -78,6 +78,18 @@ BUILDER_ARGS="runtime rb" docker compose up --exit-code-from binary binary
 docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v1.59.1 golangci-lint run -v --enable-all
 ```
 
+## Testing
+
+For testing in rootless mode:
+```sh
+./test/test.sh rootless
+```
+
+For testing in daemon mode:
+```sh
+./test/test.sh client
+```
+
 ## Useful Tools
 
 [Dive](https://github.com/wagoodman/dive) can be used to analyze each layer of the generated image
