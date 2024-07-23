@@ -31,8 +31,8 @@ test() {
 	done
 
 	DOCKER_OUTPUT=`docker run --rm -v ./test/suites:/test -t localhost:5000/metacall/builder_output sh -c "metacallcli test/$1"`
-	DOCKER_OUTPUT=`echo "${DOCKER_OUTPUT}" | xargs`
-	EXPECTED_OUTPUT=`echo "$2" | xargs`
+	DOCKER_OUTPUT=`echo ${DOCKER_OUTPUT} | tr -d '\r\n'`
+	EXPECTED_OUTPUT=`echo $2 | tr -d '\r\n'`
 
 	if [ "${DOCKER_OUTPUT}" = "${EXPECTED_OUTPUT}" ]; then
 		echo "Test passed: $1"
