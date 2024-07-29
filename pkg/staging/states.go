@@ -35,50 +35,60 @@ var languageMap = map[string]string{
 	// "sandbox"	: "sandbox",
 }
 
-func DepsBase(base llb.State, branch string, args []string) llb.State {
+func DepsBase(base llb.State, branch string, args []string) map[string]llb.State {
 	cmdArgs, err := validateArgs(args)
 	if err != nil {
 		panic(err)
 	}
 
-	return env.New(base).
+	m := make(map[string]llb.State, len(cmdArgs))
+
+	envBase := env.New(base).
 		DepsEnv().
 		Base().
-		MetaCallClone(branch).
-		MetacallEnvBase(cmdArgs).
-		Root()
-}
+		MetaCallClone(branch)
 
-func DevBase(base llb.State, branch string, args []string) llb.State {
-
-	newllb := DepsBase(base, branch, args)
-
-	cmdArgs, err := validateArgs(args)
-	if err != nil {
-		panic(err)
+	for _, arg := range cmdArgs {
+		foo := envBase
+		depsLang := foo.MetacallEnvBase(arg).Root()
+		m[arg] = depsLang
 	}
 
-	return env.New(newllb).
-		DevEnv().
-		MetaCallConfigure(cmdArgs).
-		MetaCallBuild(cmdArgs).
-		Root()
+	return m
 }
 
-func RuntimeBase(base llb.State, branch string, args []string) llb.State {
+func DevBase(base llb.State, branch string, args []string) map[string]llb.State {
 
-	cmdArgs, err := validateArgs(args)
-	if err != nil {
-		panic(err)
+	langMapDev := DepsBase(base, branch, args)
+
+	for lang, langDeps := range langMapDev {
+
+		langDev := env.New(langDeps).
+			DevEnv().
+			MetaCallConfigure(lang).
+			MetaCallBuild(lang).
+			Root()
+
+		langMapDev[lang] = langDev
 	}
 
-	return env.New(base).
-		RuntimeEnv().
-		Base().
-		MetaCallClone(branch).
-		MetacallRuntime(cmdArgs).
-		Root()
+	return langMapDev
 }
+
+// func RuntimeBase(base llb.State, branch string, args []string) llb.State {
+
+// 	cmdArgs, err := validateArgs(args)
+// 	if err != nil {
+// 		panic(err)
+// 	}
+
+// 	return env.New(base).
+// 		RuntimeEnv().
+// 		Base().
+// 		MetaCallClone(branch).
+// 		MetacallRuntime(cmdArgs).
+// 		Root()
+// }
 
 func AddCli(src llb.State, dst llb.State) llb.State {
 	return dst.With(copyFrom(src, "/usr/local/bin/metacallcli*", "/usr/local/bin/metacallcli"))
@@ -87,4 +97,12 @@ func AddCli(src llb.State, dst llb.State) llb.State {
 func RemoveBuild(state llb.State) llb.State {
 	return state
 	// return state.File(llb.Rm("/usr/local/bin/metacall"))
+}
+
+func MergeStates(individualLangStates map[string]llb.State) llb.State {
+	states := []llb.State{}
+	for _, state := range individualLangStates {
+		states = append(states, state)
+	}
+	return llb.Merge(states)
 }

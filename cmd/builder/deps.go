@@ -21,14 +21,16 @@ func NewDepsCmd(o *DepOptions) *cobra.Command {
 		Use:   "deps",
 		Short: "Build development dependencies base image for MetaCall",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			base := cmd.Context().Value(baseKey{}).(llb.State)
-			depsBase := staging.DepsBase(base, branch, args)
-			depsBase, err := o.Run(depsBase)
+			base := cmd.Context().Value(baseKey{}).(llb.State) // Image base from arg
+			depsBase := staging.DepsBase(base, branch, args)  // Get base images for lang
+			  
+			finalImage := staging.MergeStates(depsBase)        // Merge all base images
+			finalImage, err := o.Run(finalImage)
 			if err != nil {
 				return err
 			}
 
-			cmd.SetContext(context.WithValue(cmd.Context(), finalKey{}, depsBase))
+			cmd.SetContext(context.WithValue(cmd.Context(), finalKey{}, finalImage))
 			return nil
 
 		},
@@ -40,6 +42,7 @@ func NewDepsCmd(o *DepOptions) *cobra.Command {
 }
 
 func (do *DepOptions) Run(depsBase llb.State) (llb.State, error) {
+	// Add here : Any additional stuff if needed to be done
 	// return depsBase.Dir("/").Run(llb.Shlex("rm -rf /usr/local/metacall")).Root(), nil
 	return depsBase, nil
 }
