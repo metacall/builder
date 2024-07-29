@@ -48,10 +48,17 @@ func DepsBase(base llb.State, branch string, args []string) map[string]llb.State
 		Base().
 		MetaCallClone(branch)
 
-	for _, arg := range cmdArgs {
+	if len(cmdArgs) == 0 {
 		foo := envBase
-		depsLang := foo.MetacallEnvBase(arg).Root()
-		m[arg] = depsLang
+		depsLang := foo.MetacallEnvBase("").Root()
+		m["emptyBase"] = depsLang
+
+	} else {
+		for _, arg := range cmdArgs {
+			foo := envBase
+			depsLang := foo.MetacallEnvBase(arg).Root()
+			m[arg] = depsLang
+		}
 	}
 
 	return m
@@ -61,42 +68,69 @@ func DevBase(base llb.State, branch string, args []string) map[string]llb.State 
 
 	langMapDev := DepsBase(base, branch, args)
 
-	for lang, langDeps := range langMapDev {
-
-		langDev := env.New(langDeps).
+	if value, exists := langMapDev["emptyBase"]; exists {
+		langDev := env.New(value).
 			DevEnv().
-			MetaCallConfigure(lang).
-			MetaCallBuild(lang).
+			MetaCallConfigure("").
+			MetaCallBuild("").
 			Root()
 
-		langMapDev[lang] = langDev
+		langMapDev["emptyBase"] = langDev
+
+	} else {
+		for lang, langDeps := range langMapDev {
+			langDev := env.New(langDeps).
+				DevEnv().
+				MetaCallConfigure(lang).
+				MetaCallBuild(lang).
+				Root()
+
+			langMapDev[lang] = langDev
+		}
 	}
 
 	return langMapDev
 }
 
-// func RuntimeBase(base llb.State, branch string, args []string) llb.State {
+func RuntimeBase(base llb.State, branch string, args []string) map[string]llb.State {
 
-// 	cmdArgs, err := validateArgs(args)
-// 	if err != nil {
-// 		panic(err)
-// 	}
+	langMapDev := DevBase(base, branch, args)
+	mapDev := DevBase(base, branch, []string{})
 
-// 	return env.New(base).
-// 		RuntimeEnv().
-// 		Base().
-// 		MetaCallClone(branch).
-// 		MetacallRuntime(cmdArgs).
-// 		Root()
-// }
+	for lang, langDev := range mapDev{
+		langDev = RemoveBuild(langDev)
+		langMapDev[lang] = langDev
+	}
+
+	// Empty base to take diff from
+	emptyDevBase := mapDev["emptyBase"]
+
+	// Runtime base
+	runtimeBase := env.New(base).
+		RuntimeEnv().
+		Base().
+		MetaCallClone(branch)
+
+	for lang, langDev := range langMapDev {
+		foo := runtimeBase
+		langRuntimeBase := foo.MetacallRuntime(lang).Root()
+
+		langRuntimeBase = RemoveBuild(langRuntimeBase)
+		diffed :=  llb.Diff(emptyDevBase,langDev)
+		langRuntime := llb.Merge([]llb.State{langRuntimeBase, diffed})
+		langMapDev[lang] = langRuntime
+	}
+
+	return langMapDev
+}
 
 func AddCli(src llb.State, dst llb.State) llb.State {
 	return dst.With(copyFrom(src, "/usr/local/bin/metacallcli*", "/usr/local/bin/metacallcli"))
 }
 
 func RemoveBuild(state llb.State) llb.State {
-	return state
-	// return state.File(llb.Rm("/usr/local/bin/metacall"))
+	// return state
+	return state.File(llb.Rm("/usr/local/bin/metacall"))
 }
 
 func MergeStates(individualLangStates map[string]llb.State) llb.State {
