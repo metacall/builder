@@ -130,7 +130,7 @@ func AddCli(src llb.State, dst llb.State) llb.State {
 
 func RemoveBuild(state llb.State) llb.State {
 	// return state
-	return state.File(llb.Rm("/usr/local/bin/metacall"))
+	return state.File(llb.Rm("/usr/local/metacall"))
 }
 
 func MergeStates(individualLangStates map[string]llb.State) llb.State {
