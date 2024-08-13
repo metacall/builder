@@ -26,8 +26,9 @@ func NewRuntimeCmd(o *RuntimeOptions) *cobra.Command {
 			}
 			base := cmd.Context().Value(baseKey{}).(llb.State)
 
-			devBaseLang := staging.DevBase(base,branch,[]string{})
-			devBase := staging.MergeStates(devBaseLang)
+			devBaseEmpty := staging.DevBase(base, branch, []string{})
+
+			devBase := staging.MergeStates(devBaseEmpty)
 
 			runtimeBase := staging.RuntimeBase(base, branch, args)
 			finalImage := staging.MergeStates(runtimeBase)

@@ -98,7 +98,7 @@ func RuntimeBase(base llb.State, branch string, args []string) map[string]llb.St
 	mapDev := DevBase(base, branch, []string{})
 
 	for lang, langDev := range mapDev{
-		langDev = RemoveBuild(langDev)
+		// langDev = RemoveBuild(langDev)
 		langMapDev[lang] = langDev
 	}
 
@@ -115,9 +115,10 @@ func RuntimeBase(base llb.State, branch string, args []string) map[string]llb.St
 		foo := runtimeBase
 		langRuntimeBase := foo.MetacallRuntime(lang).Root()
 
-		langRuntimeBase = RemoveBuild(langRuntimeBase)
+		// langRuntimeBase = RemoveBuild(langRuntimeBase)
 		diffed :=  llb.Diff(emptyDevBase,langDev)
 		langRuntime := llb.Merge([]llb.State{langRuntimeBase, diffed})
+		// langRuntime = RemoveBuild(langRuntime) better to remove at the end
 		langMapDev[lang] = langRuntime
 	}
 
