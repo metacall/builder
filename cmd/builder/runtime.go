@@ -26,18 +26,17 @@ func NewRuntimeCmd(o *RuntimeOptions) *cobra.Command {
 			}
 			base := cmd.Context().Value(baseKey{}).(llb.State)
 
-			devBaseEmpty := staging.DevBase(base, branch, []string{})
+			devBaseLang := staging.DevBase(base, branch, args)
+			devImage := staging.MergeStates(devBaseLang)
 
-			devBase := staging.MergeStates(devBaseEmpty)
-
-			runtimeBase := staging.RuntimeBase(base, branch, args)
-			finalImage := staging.MergeStates(runtimeBase)
+			runtimeLang:= staging.RuntimeBase(base, branch, args)
+			runtimeImage := staging.MergeStates(runtimeLang)
 
 			if o.RuntimeImageFlags.MetacallCli {
-				finalImage = staging.AddCli(devBase, finalImage)
+				runtimeImage = staging.AddCli(devImage, runtimeImage)
 			}
 
-			runtime, err := o.Run(finalImage)
+			runtime, err := o.Run(runtimeImage)
 			if err != nil {
 				return err
 			}

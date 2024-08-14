@@ -95,15 +95,11 @@ func DevBase(base llb.State, branch string, args []string) map[string]llb.State 
 func RuntimeBase(base llb.State, branch string, args []string) map[string]llb.State {
 
 	langMapDev := DevBase(base, branch, args)
-	mapDev := DevBase(base, branch, []string{})
-
-	for lang, langDev := range mapDev{
-		// langDev = RemoveBuild(langDev)
-		langMapDev[lang] = langDev
-	}
+	emptyMapDev := DevBase(base, branch, []string{})
 
 	// Empty base to take diff from
-	emptyDevBase := mapDev["emptyBase"]
+	emptyDevBase := emptyMapDev["emptyBase"]
+	emptyDevBase = RemoveBuild(emptyDevBase)
 
 	// Runtime base
 	runtimeBase := env.New(base).
@@ -115,10 +111,8 @@ func RuntimeBase(base llb.State, branch string, args []string) map[string]llb.St
 		foo := runtimeBase
 		langRuntimeBase := foo.MetacallRuntime(lang).Root()
 
-		// langRuntimeBase = RemoveBuild(langRuntimeBase)
-		diffed :=  llb.Diff(emptyDevBase,langDev)
+		diffed := llb.Diff(emptyDevBase, langDev)
 		langRuntime := llb.Merge([]llb.State{langRuntimeBase, diffed})
-		// langRuntime = RemoveBuild(langRuntime) better to remove at the end
 		langMapDev[lang] = langRuntime
 	}
 
