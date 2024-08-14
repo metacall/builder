@@ -2,17 +2,17 @@ package staging
 
 import (
 	"errors"
-	"strings"
 
 	"github.com/moby/buildkit/client/llb"
 )
 
-func validateArgs(args []string) (string, error) {
+func validateArgs(args []string) ([]string, error) {
 	cmdArgs := []string{}
+	// Better is to go through map key and then match , will keep args in one order
 	for _, arg := range args {
 		lang, ok := languageMap[arg]
 		if !ok {
-			return "", errors.New("Invalid language: " + arg)
+			return []string{}, errors.New("Invalid language: " + arg)
 		}
 		isExists := false
 		for _, str := range cmdArgs {
@@ -24,7 +24,7 @@ func validateArgs(args []string) (string, error) {
 			cmdArgs = append(cmdArgs, lang)
 		}
 	}
-	return strings.Join(cmdArgs, " "), nil
+	return cmdArgs, nil
 }
 
 func copyFrom(src llb.State, srcPath, destPath string) llb.StateOption {
@@ -41,22 +41,22 @@ func copy(src llb.State, srcPath string, dest llb.State, destPath string) llb.St
 	}))
 }
 
-// func copyForStates(src llb.State, dst llb.State, srcpaths []string, dstpath string) llb.State {
-// 	return dst.With(
-// 		copyMultiple(src, srcpaths, dstpath),
-// 	)
-// }
+func copyForStates(src llb.State, dst llb.State, srcpaths []string, dstpath string) llb.State {
+	return dst.With(
+		copyMultiple(src, srcpaths, dstpath),
+	)
+}
 
-// func copyMultiple(src llb.State, srcPaths []string, destPath string) llb.StateOption {
-// 	var stateOptions []llb.StateOption
-// 	for _, srcPath := range srcPaths {
-// 		stateOptions = append(stateOptions, copyFrom(src, srcPath, destPath))
-// 	}
+func copyMultiple(src llb.State, srcPaths []string, destPath string) llb.StateOption {
+	var stateOptions []llb.StateOption
+	for _, srcPath := range srcPaths {
+		stateOptions = append(stateOptions, copyFrom(src, srcPath, destPath))
+	}
 
-// 	return func(s llb.State) llb.State {
-// 		for _, stateOption := range stateOptions {
-// 			s = stateOption(s)
-// 		}
-// 		return s
-// 	}
-// }
+	return func(s llb.State) llb.State {
+		for _, stateOption := range stateOptions {
+			s = stateOption(s)
+		}
+		return s
+	}
+}

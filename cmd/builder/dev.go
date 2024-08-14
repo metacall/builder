@@ -23,12 +23,14 @@ func NewDevCmd(o *DevOptions) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			base := cmd.Context().Value(baseKey{}).(llb.State)
 			devBase := staging.DevBase(base, branch, args)
-			devBase, err := o.Run(devBase)
+			
+			finalImage := staging.MergeStates(devBase)
+			finalImage, err := o.Run(finalImage)
 			if err != nil {
 				return err
 			}
 
-			cmd.SetContext(context.WithValue(cmd.Context(), finalKey{}, devBase))
+			cmd.SetContext(context.WithValue(cmd.Context(), finalKey{}, finalImage))
 			return nil
 
 		},
