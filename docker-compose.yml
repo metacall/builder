@@ -51,8 +51,6 @@ services:
     container_name: metacall_builder_buildkit
     restart: always
     privileged: true
-    volumes:
-      - /var/lib/buildkit
     # volumes:
     #   - /var/run/docker.sock:/var/run/docker.sock
     #   - /run/containerd/containerd.sock:/run/containerd/containerd.sock
