@@ -1,8 +1,5 @@
 version: "3.7"
 
-# volumes:
-#   buildkit:
-
 services:
   binary:
     image: metacall/builder_binary
