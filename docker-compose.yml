@@ -18,6 +18,10 @@ services:
       dockerfile: Dockerfile
       target: builder_rootless
     entrypoint: /home/user/builder.sh ${BUILDER_ARGS:-}
+    # entrypoint:  /bin/sh -c "sleep infinity"
+    environment:
+      IMPORT_REGISTRY: ${IMPORT_REGISTRY:-testing}
+      EXPORT_REGISTRY: ${EXPORT_REGISTRY:-testing}
     security_opt:
       - "seccomp=unconfined"
       - "apparmor=unconfined"
@@ -34,6 +38,9 @@ services:
       dockerfile: Dockerfile
       target: builder_client
     entrypoint: /home/builder.sh ${BUILDER_ARGS:-}
+    environment:
+      IMPORT_REGISTRY: ${IMPORT_REGISTRY:-testing}
+      EXPORT_REGISTRY: ${EXPORT_REGISTRY:-testing}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       # - buildkit:/run/user/1000/buildkit/buildkitd.sock
