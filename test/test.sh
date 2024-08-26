@@ -106,5 +106,6 @@ if [ "$2" == "startup" ];
 then
 	startupTests
 else
+	echo "laude lag gye bhai"
 	defaultTests
 fi
