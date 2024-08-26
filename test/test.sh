@@ -95,10 +95,10 @@ startupTests(){
 	test node/test.js "0123456789"
 
 	# TODO : Flush env's depedning upon the mode
-	# echo "Building cli mode with node and py languages."
-	# export BUILDER_ARGS="runtime --cli py node"
-	# export IMPORT_REGISTRY="registry:5000/metacall/builder_startup"
-	# test node/test.js "0123456789" # Should be quicker since all caches are already built
+	echo "Building cli mode with node and py languages."
+	export BUILDER_ARGS="runtime --cli py node"
+	export IMPORT_REGISTRY="registry:5000/metacall/builder_startup"
+	test node/test.js "0123456789" # Should be quicker since all caches are already built
 	cleanup
 }
 
