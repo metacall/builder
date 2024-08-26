@@ -86,18 +86,20 @@ defaultTests(){
 }
 
 startupTests(){
+	# Build the startup image with all languages
 	echo "Building all languages in startup mode."
 	export BUILDER_ARGS="runtime --cli --startup"
 	export EXPORT_REGISTRY="registry:5000/metacall/builder_startup"
 	export IMPORT_REGISTRY="registry:5000/metacall/builder_startup"
-
-	# Import registry set to by default
 	test node/test.js "0123456789"
 
-	# TODO : Flush env's depedning upon the mode
+	sleep 5
+	
+	# Testing the cache registry
 	echo "Building cli mode with node and py languages."
 	export BUILDER_ARGS="runtime --cli py node"
 	export IMPORT_REGISTRY="registry:5000/metacall/builder_startup"
+	export EXPORT_REGISTRY="registry:5000/metacall/builder_dump" # To not able to rewrite the cache 
 	test node/test.js "0123456789" # Should be quicker since all caches are already built
 	cleanup
 }
