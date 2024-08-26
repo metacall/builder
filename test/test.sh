@@ -102,6 +102,7 @@ startupTests(){
 	cleanup
 }
 echo $2
+echo "hiii"
 if [ "$2" == "startup" ]; 
 then
 	startupTests
