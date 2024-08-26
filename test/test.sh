@@ -16,6 +16,7 @@ else
 fi
 
 DOCKER_SERVICE=${1:-rootless}
+TEST_TYPE=${2:-default}
 
 build() {
 	${DOCKER_CMD} up --exit-code-from ${DOCKER_SERVICE} ${DOCKER_SERVICE}
@@ -101,8 +102,8 @@ startupTests(){
 	cleanup
 }
 
-if [ -z "$2" ]; then
+if [ "${TEST_TYPE}" = "default" ]; then
 	defaultTests
-elif [ "$2" = "startup" ]; then
+elif [ "${TEST_TYPE}" = "startup" ]; then
 	startupTests
 fi
