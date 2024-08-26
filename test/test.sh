@@ -103,7 +103,7 @@ startupTests(){
 }
 echo $2
 echo "hiii"
-if [ "$2" == "startup" ]; then
+if [ "$2" = "startup" ]; then
 	startupTests
 else
 	echo "laude lag gye bhai"
