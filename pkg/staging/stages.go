@@ -6,9 +6,8 @@ import (
 )
 
 var languageMap = map[string]string{
-	"base": "base",
-	"py":   "python",
-	"rb":   "ruby",
+	"py": "python",
+	"rb": "ruby",
 	// "netcore":   "netcore",
 	// "netcore2":  "netcore2",
 	// "netcore5":  "netcore5",
@@ -25,10 +24,10 @@ var languageMap = map[string]string{
 	// "ts":   "typescript",
 	// "file":       "file",
 	// "rpc":        "rpc",
-	"wasm": "wasm",
-	"java": "java",
-	// "c":    "c",
-	"cob":  "cobol",
+	// "wasm": "wasm",
+	// "java": "java",
+	// // "c":    "c",
+	// "cob":  "cobol",
 	// "go":   "go",
 	// "rs":   "rust",
 	// "backtrace"	: "backtrace",

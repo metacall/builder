@@ -30,19 +30,6 @@ setupRegistry(){
 	done
 }
 
-checkOutput(){
-	
-	if [ "$1" = "$2" ]; then
-		echo "Test passed: $3"
-	else
-		echo "Failed to run test: $3"
-		echo "Expected output was: '$2'"
-		echo "Test output was: '$1'"
-		exit 1
-	fi
-
-}
-
 cleanup(){
 	${DOCKER_CMD} down
 }
@@ -57,7 +44,14 @@ test() {
 	EXPECTED_OUTPUT=`echo $2 | tr -d '\r\n'`
 	TEST_NAME=`echo $1`
 
-	checkOutput ${DOCKER_OUTPUT} ${EXPECTED_OUTPUT} ${TEST_NAME}
+	if [ "${DOCKER_OUTPUT}" = "${EXPECTED_OUTPUT}" ]; then
+		echo "Test passed: ${TEST_NAME}"
+	else
+		echo "Failed to run test: ${TEST_NAME}"
+		echo "Expected output was: '${EXPECTED_OUTPUT}'"
+		echo "Test output was: '${DOCKER_OUTPUT}'"
+		exit 1
+	fi
 
 }
 
@@ -98,7 +92,9 @@ startupTests(){
 	test node/test.js "0123456789"
 
 	# TODO : Flush env's depedning upon the mode
-	echo "Building all languages in startup mode with cache in local registry."
+	echo "Building cli mode with node and py languages."
+	export BUILDER_ARGS="runtime --cli py node"
+	export IMPORT_REGISTRY="registry:5000/metacall/builder_startup"
 	test node/test.js "0123456789" # Should be quicker since all caches are already built
 	cleanup
 }
