@@ -28,8 +28,8 @@ var languageMap = map[string]string{
 	// "java": "java",
 	// "c":    "c",
 	// "cob":  "cobol",
-	"go":   "go",
-	// "rs":   "rust",
+	// "go":   "go",
+	"rs":   "rust",
 	// "backtrace"	: "backtrace",
 	// "sandbox"	: "sandbox",
 }
