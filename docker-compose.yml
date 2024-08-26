@@ -20,8 +20,8 @@ services:
     entrypoint: /home/user/builder.sh ${BUILDER_ARGS:-}
     # entrypoint:  /bin/sh -c "sleep infinity"
     environment:
-      IMPORT_REGISTRY: ${IMPORT_REGISTRY:-testing}
-      EXPORT_REGISTRY: ${EXPORT_REGISTRY:-testing}
+      IMPORT_REGISTRY: ${IMPORT_REGISTRY:-registry:5000/metacall/builder_startup} # Default won't be needed once we copy the script
+      EXPORT_REGISTRY: ${EXPORT_REGISTRY:-registry:5000/metacall/builder_dump}
     security_opt:
       - "seccomp=unconfined"
       - "apparmor=unconfined"

@@ -32,6 +32,7 @@ FROM moby/buildkit:master-rootless AS builder_rootless
 
 COPY --from=builder_binary --chown=user:user /builder /home/user/builder
 
+# TO-DO : Replace with copying from scripts locally
 RUN printf '#!/bin/sh\n\
 export BUILDKITD_FLAGS=--oci-worker-no-process-sandbox\n\
 /home/user/builder $@ | buildctl-daemonless.sh build \
@@ -49,6 +50,7 @@ COPY --from=builder_binary --chown=root:root /builder /home/builder
 
 RUN apk add --no-cache docker
 
+# TO-DO : Replace with copying from scripts locally
 RUN printf '#!/bin/sh\n\
 /home/builder $@ | buildctl --addr="docker-container://metacall_builder_buildkit" build \
 --export-cache type=registry,ref=${EXPORT_REGISTRY},registry.insecure=true \

@@ -21,29 +21,44 @@ build() {
 	${DOCKER_CMD} up --exit-code-from ${DOCKER_SERVICE} ${DOCKER_SERVICE}
 }
 
-test() {
-	build
-
+setupRegistry(){
+	
 	${DOCKER_CMD} up -d registry
 
 	while [ ! "$(docker inspect --format '{{json .State.Health.Status }}' metacall_builder_registry)" = "\"healthy\"" ]; do
 		sleep 5
 	done
+}
 
-	DOCKER_OUTPUT=`docker run --rm -v ./test/suites:/test -t localhost:5000/metacall/builder_output sh -c "metacallcli test/$1"`
-	DOCKER_OUTPUT=`echo ${DOCKER_OUTPUT} | tr -d '\r\n'`
-	EXPECTED_OUTPUT=`echo $2 | tr -d '\r\n'`
-
-	if [ "${DOCKER_OUTPUT}" = "${EXPECTED_OUTPUT}" ]; then
-		echo "Test passed: $1"
+checkOutput(){
+	
+	if [ "$1" = "$2" ]; then
+		echo "Test passed: $3"
 	else
-		echo "Failed to run test: $1"
-		echo "Expected output was: '${EXPECTED_OUTPUT}'"
-		echo "Test output was: '${DOCKER_OUTPUT}'"
+		echo "Failed to run test: $3"
+		echo "Expected output was: '$2'"
+		echo "Test output was: '$1'"
 		exit 1
 	fi
 
+}
+
+cleanup(){
 	${DOCKER_CMD} down
+}
+
+test() {
+	
+	build
+	setupRegistry
+	
+	DOCKER_OUTPUT=`docker run --rm -v ./test/suites:/test -t localhost:5000/metacall/builder_output sh -c "metacallcli test/$1"`
+	DOCKER_OUTPUT=`echo ${DOCKER_OUTPUT} | tr -d '\r\n'`
+	EXPECTED_OUTPUT=`echo $2 | tr -d '\r\n'`
+	TEST_NAME=`echo $1`
+
+	checkOutput ${DOCKER_OUTPUT} ${EXPECTED_OUTPUT} ${TEST_NAME}
+
 }
 
 # TODO:
@@ -57,16 +72,39 @@ test() {
 # 	done
 # done
 
-# Build the dev image with NodeJS language
-echo "Building dev mode with NodeJS language."
-export BUILDER_ARGS="dev node"
-export IMPORT_REGISTRY="registry:5000/metacall/builder_cache"
-export EXPORT_REGISTRY="registry:5000/metacall/builder_cache"
-test node/test.js "0123456789"
+defaultTests(){
+	# Build the dev image with NodeJS language
+	echo "Building dev mode with NodeJS language."
+	export BUILDER_ARGS="dev node"
+	export IMPORT_REGISTRY="registry:5000/metacall/builder_cache"
+	export EXPORT_REGISTRY="registry:5000/metacall/builder_cache"
+	test node/test.js "0123456789"
+	cleanup
 
-# Build the cli image with languages all together
-echo "Building cli mode with all languages."
-export BUILDER_ARGS="runtime --cli py node rb"
-export IMPORT_REGISTRY="registry:5000/metacall/builder_cache"
-export EXPORT_REGISTRY="registry:5000/metacall/builder_cache"
-test node/test.js "0123456789"
+	# Build the cli image with languages all together
+	echo "Building cli mode with all languages."
+	export BUILDER_ARGS="runtime --cli py node rb"
+	export IMPORT_REGISTRY="registry:5000/metacall/builder_cache"
+	export EXPORT_REGISTRY="registry:5000/metacall/builder_cache"
+	test node/test.js "0123456789"
+	cleanup
+}
+
+startupTests(){
+	echo "Building all languages in startup mode."
+	export BUILDER_ARGS="runtime --startup"
+	export EXPORT_REGISTRY="registry:5000/metacall/builder_startup"
+	# Import registry set to by default
+	test node/test.js "0123456789"
+
+	echo "Building all languages in startup mode with cache in local registry."
+	test node/test.js "0123456789" # Should be quicker since all caches are already built
+	cleanup
+}
+
+if [ "$2" == "startup" ] 
+then
+	startupTests()
+else
+	defaultTests()
+fi
