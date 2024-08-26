@@ -30,7 +30,9 @@ test() {
 		sleep 5
 	done
 
-	DOCKER_OUTPUT=`docker run --rm -v ./test/suites:/test -t localhost:5000/metacall/builder_output sh -c "metacallcli test/$1"`
+	first_arg=$(echo $BUILDER_ARGS | cut -d ' ' -f 1)
+
+	DOCKER_OUTPUT=`docker run --rm -v ./test/suites:/test -t localhost:5000/metacall/builder_output_$first_arg sh -c "metacallcli test/$1"`
 	DOCKER_OUTPUT=`echo ${DOCKER_OUTPUT} | tr -d '\r\n'`
 	EXPECTED_OUTPUT=`echo $2 | tr -d '\r\n'`
 
@@ -58,11 +60,11 @@ test() {
 # done
 
 # Build the dev image with NodeJS language
-# echo "Building dev mode with NodeJS language."
-# export BUILDER_ARGS="dev node"
-# export IMPORT_REGISTRY="registry:5000/metacall/builder_cache"
-# export EXPORT_REGISTRY="registry:5000/metacall/builder_cache"
-# test node/test.js "0123456789"
+echo "Building dev mode with NodeJS language."
+export BUILDER_ARGS="dev node"
+export IMPORT_REGISTRY="registry:5000/metacall/builder_cache"
+export EXPORT_REGISTRY="registry:5000/metacall/builder_cache"
+test node/test.js "0123456789"
 
 # Build the cli image with languages all together
 echo "Building cli mode with all languages."

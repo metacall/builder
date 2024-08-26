@@ -37,7 +37,7 @@ export BUILDKITD_FLAGS=--oci-worker-no-process-sandbox\n\
 /home/user/builder $@ | buildctl-daemonless.sh build \
 --export-cache type=registry,ref=${EXPORT_REGISTRY},registry.insecure=true \
 --import-cache type=registry,ref=${IMPORT_REGISTRY},registry.insecure=true \
---output type=image,name=registry:5000/metacall/builder_output,push=true,registry.insecure=true\n'\
+--output type=image,name=registry:5000/metacall/builder_output_$1,push=true,registry.insecure=true\n'\
 >> /home/user/builder.sh \
     && chmod 700 /home/user/builder.sh \
     && chmod 700 /home/user/builder
@@ -53,7 +53,7 @@ RUN printf '#!/bin/sh\n\
 /home/builder $@ | buildctl --addr="docker-container://metacall_builder_buildkit" build \
 --export-cache type=registry,ref=${EXPORT_REGISTRY},registry.insecure=true \
 --import-cache type=registry,ref=${IMPORT_REGISTRY},registry.insecure=true \
---output type=image,name=registry:5000/metacall/builder_output,push=true,registry.insecure=true\n'\
+--output type=image,name=registry:5000/metacall/builder_output_$1,push=true,registry.insecure=true\n'\
 >> /home/builder.sh \
     && chmod 700 /home/builder.sh \
     && chmod 700 /home/builder
