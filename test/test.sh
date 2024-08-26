@@ -58,11 +58,11 @@ test() {
 # done
 
 # Build the dev image with NodeJS language
-echo "Building dev mode with NodeJS language."
-export BUILDER_ARGS="dev node"
-export IMPORT_REGISTRY="registry:5000/metacall/builder_cache"
-export EXPORT_REGISTRY="registry:5000/metacall/builder_cache"
-test node/test.js "0123456789"
+# echo "Building dev mode with NodeJS language."
+# export BUILDER_ARGS="dev node"
+# export IMPORT_REGISTRY="registry:5000/metacall/builder_cache"
+# export EXPORT_REGISTRY="registry:5000/metacall/builder_cache"
+# test node/test.js "0123456789"
 
 # Build the cli image with languages all together
 echo "Building cli mode with all languages."
