@@ -101,10 +101,10 @@ startupTests(){
 	test node/test.js "0123456789" # Should be quicker since all caches are already built
 	cleanup
 }
-echo "$2"
 
-if [ -z "$2" ]; then 
-	startupTests
+if [ "$2" == "startup" ] 
+then
+	startupTests()
 else
-	defaultTests
+	defaultTests()
 fi
