@@ -104,7 +104,7 @@ startupTests(){
 
 if [ "$2" == "startup" ] 
 then
-	startupTests()
+	startupTests
 else
-	defaultTests()
+	defaultTests
 fi
