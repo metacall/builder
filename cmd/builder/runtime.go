@@ -30,8 +30,6 @@ func NewRuntimeCmd(o *RuntimeOptions) *cobra.Command {
 				args = staging.GetAllLanguages()
 			}
 
-			// fmt.Println(args)
-
 			base := cmd.Context().Value(baseKey{}).(llb.State)
 
 			devBaseLang := staging.DevBase(base, branch, args)

@@ -95,7 +95,6 @@ startupTests(){
 	export IMPORT_REGISTRY="registry:5000/metacall/builder_startup"
 	test node/test.js "0123456789"
 
-	sleep 5
 	
 	# Testing the cache registry
 	echo "Building cli mode with node and py languages."
