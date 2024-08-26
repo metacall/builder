@@ -135,3 +135,11 @@ func MergeStates(individualLangStates map[string]llb.State) llb.State {
 	}
 	return llb.Merge(states)
 }
+
+func GetAllLanguages() []string {
+	langs := []string{}
+	for lang := range languageMap {
+		langs = append(langs, lang)
+	}
+	return langs
+}
