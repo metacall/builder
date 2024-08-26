@@ -87,7 +87,7 @@ defaultTests(){
 
 startupTests(){
 	echo "Building all languages in startup mode."
-	export BUILDER_ARGS="runtime --startup"
+	export BUILDER_ARGS="runtime --cli --startup"
 	export EXPORT_REGISTRY="registry:5000/metacall/builder_startup"
 	export IMPORT_REGISTRY="registry:5000/metacall/builder_startup"
 
