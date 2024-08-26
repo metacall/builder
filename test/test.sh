@@ -88,6 +88,8 @@ startupTests(){
 	echo "Building all languages in startup mode."
 	export BUILDER_ARGS="runtime --startup"
 	export EXPORT_REGISTRY="registry:5000/metacall/builder_startup"
+	export IMPORT_REGISTRY="registry:5000/metacall/builder_startup"
+
 	# Import registry set to by default
 	test node/test.js "0123456789"
 
