@@ -104,7 +104,7 @@ startupTests(){
 echo "$2"
 
 if [ -z "$2" ]; then 
-	startupTests()
+	startupTests
 else
-	defaultTests()
+	defaultTests
 fi
