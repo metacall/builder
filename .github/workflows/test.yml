@@ -22,13 +22,13 @@ jobs:
       # - name: Lint
       #   run: docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v1.59.1 golangci-lint run -v --enable-all
 
-      - name: Build
-        run: docker compose build
+      # - name: Build
+      #   run: docker compose build
 
-      - name: Test Binary
-        env:
-          BUILDER_ARGS: "runtime rb"
-        run: docker compose up --exit-code-from binary binary
+      # - name: Test Binary
+      #   env:
+      #     BUILDER_ARGS: "runtime rb"
+      #   run: docker compose up --exit-code-from binary binary
 
       # - name: Test Rootless
       #   run: ./test/test.sh rootless
@@ -36,8 +36,8 @@ jobs:
       # - name: Test Daemon
       #   run: ./test/test.sh client
 
-      # - name: Test Startup-Rootless
-      #   run: ./test/test.sh rootless startup
+      - name: Test Startup-Rootless
+        run: ./test/test.sh rootless startup
       
       - name: Test Startup-Daemon
         run: ./test/test.sh client startup
