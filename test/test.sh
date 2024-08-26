@@ -40,7 +40,9 @@ test() {
 	build
 	setupRegistry
 	
-	DOCKER_OUTPUT=`docker run --rm -v ./test/suites:/test -t localhost:5000/metacall/builder_output sh -c "metacallcli test/$1"`
+	first_arg=$(echo $BUILDER_ARGS | cut -d ' ' -f 1)
+
+	DOCKER_OUTPUT=`docker run --rm -v ./test/suites:/test -t localhost:5000/metacall/builder_output_$first_arg sh -c "metacallcli test/$1"`
 	DOCKER_OUTPUT=`echo ${DOCKER_OUTPUT} | tr -d '\r\n'`
 	EXPECTED_OUTPUT=`echo $2 | tr -d '\r\n'`
 	TEST_NAME=`echo $1`
