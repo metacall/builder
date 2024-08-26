@@ -30,14 +30,8 @@ jobs:
           BUILDER_ARGS: "runtime rb"
         run: docker compose up --exit-code-from binary binary
 
-      # - name: Test Rootless
-      #   run: ./test/test.sh rootless
+      - name: Test Rootless
+        run: ./test/test.sh rootless
 
-      # - name: Test Daemon
-      #   run: ./test/test.sh client
-
-      - name: Test Startup-Rootless
-        run: ./test/test.sh rootless startup
-      
-      - name: Test Startup-Daemon
-        run: ./test/test.sh client startup
+      - name: Test Daemon
+        run: ./test/test.sh client
