@@ -97,16 +97,14 @@ startupTests(){
 	# Import registry set to by default
 	test node/test.js "0123456789"
 
-	# Flush env's depedning upon the mode
+	# TODO : Flush env's depedning upon the mode
 	echo "Building all languages in startup mode with cache in local registry."
 	test node/test.js "0123456789" # Should be quicker since all caches are already built
 	cleanup
 }
-echo $2
-echo "hiii"
+
 if [ "$2" = "startup" ]; then
 	startupTests
 else
-	echo "laude lag gye bhai"
 	defaultTests
 fi
