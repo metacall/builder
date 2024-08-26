@@ -6,7 +6,7 @@ import (
 
 type RuntimeImageFlags struct {
 	MetacallCli bool
-	Startup string
+	Startup bool
 }
 
 func (i *RuntimeImageFlags) Set(cmd *cobra.Command) {
@@ -14,5 +14,5 @@ func (i *RuntimeImageFlags) Set(cmd *cobra.Command) {
 }
 
 func (i *RuntimeImageFlags) SetStartup(cmd *cobra.Command) {
-	cmd.Flags().StringVar(&i.Startup, "startup", "", "startup flag to be used for building image with all languages")
+	cmd.Flags().BoolVar(&i.Startup, "startup", false, "startup flag to be used for building image with all languages")
 }

@@ -26,7 +26,7 @@ func NewRuntimeCmd(o *RuntimeOptions) *cobra.Command {
 				args = append(args, "node")
 			}
 
-			if o.RuntimeImageFlags.Startup != "" {
+			if o.RuntimeImageFlags.Startup {
 				args = staging.GetAllLanguages()
 			}
 
