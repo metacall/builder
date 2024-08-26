@@ -30,7 +30,7 @@ var languageMap = map[string]string{
 	// "c":    "c",
 	"cob":  "cobol",
 	// "go":   "go",
-	"rs":   "rust",
+	// "rs":   "rust",
 	// "backtrace"	: "backtrace",
 	// "sandbox"	: "sandbox",
 }
