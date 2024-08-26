@@ -103,8 +103,7 @@ startupTests(){
 }
 echo "$2"
 
-if [ -z "$2" ] 
-then
+if [ -z "$2" ]; then 
 	startupTests()
 else
 	defaultTests()
