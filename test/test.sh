@@ -99,8 +99,8 @@ startupTests(){
 	cleanup
 }
 
-if [ "$2" = "startup" ]; then
-	startupTests
-else
+if [ -z "$2" ]; then
 	defaultTests
+elif [ "$2" = "startup" ]; then
+	startupTests
 fi

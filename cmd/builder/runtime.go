@@ -2,6 +2,7 @@ package builder
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/metacall/builder/pkg/staging"
 	"github.com/moby/buildkit/client/llb"
@@ -29,6 +30,8 @@ func NewRuntimeCmd(o *RuntimeOptions) *cobra.Command {
 			if o.RuntimeImageFlags.Startup {
 				args = staging.GetAllLanguages()
 			}
+
+			fmt.Println(args)
 
 			base := cmd.Context().Value(baseKey{}).(llb.State)
 
