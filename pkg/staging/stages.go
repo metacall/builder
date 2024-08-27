@@ -21,7 +21,7 @@ var languageMap = map[string]string{
 	// "v8rep52":   "v8rep52",
 	// "v8rep51":   "v8rep51",
 	"node": "nodejs",
-	// "ts":   "typescript",
+	"ts":   "typescript",
 	// "file":       "file",
 	// "rpc":        "rpc",
 	// "wasm": "wasm",
@@ -29,7 +29,7 @@ var languageMap = map[string]string{
 	// "c":    "c",
 	// "cob":  "cobol",
 	// "go":   "go",
-	"rs":   "rust",
+	// "rs":   "rust",
 	// "backtrace"	: "backtrace",
 	// "sandbox"	: "sandbox",
 }

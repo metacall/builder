@@ -100,6 +100,7 @@ func (e Env) RuntimeEnv() Env {
 func (e Env) Base() Env {
 	e.state = e.state.Run(llb.Shlex("apt-get update")).
 		Run(llb.Shlex("apt-get -y --no-install-recommends install git ca-certificates")).
+		Run(llb.Shlex("apt install npm")). // Maybe a better option would be to make a check in metacall environment installation and make langauge specific some installs
 		Root()
 
 	return e

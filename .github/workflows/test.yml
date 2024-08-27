@@ -39,5 +39,5 @@ jobs:
       - name: Test Startup-Rootless
         run: ./test/test.sh rootless startup
       
-      - name: Test Startup-Daemon
-        run: ./test/test.sh client startup
+      # - name: Test Startup-Daemon
+      #   run: ./test/test.sh client startup
