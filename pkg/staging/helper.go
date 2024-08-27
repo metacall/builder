@@ -41,22 +41,22 @@ func copy(src llb.State, srcPath string, dest llb.State, destPath string) llb.St
 	}))
 }
 
-func copyForStates(src llb.State, dst llb.State, srcpaths []string, dstpath string) llb.State {
-	return dst.With(
-		copyMultiple(src, srcpaths, dstpath),
-	)
-}
+// Functions which might be useful later, left as comments here : 
+// func copyForStates(src llb.State, dst llb.State, srcpaths []string, dstpath string) llb.State {
+// 	return dst.With(
+// 		copyMultiple(src, srcpaths, dstpath),
+// 	)
+// }
 
-func copyMultiple(src llb.State, srcPaths []string, destPath string) llb.StateOption {
-	var stateOptions []llb.StateOption
-	for _, srcPath := range srcPaths {
-		stateOptions = append(stateOptions, copyFrom(src, srcPath, destPath))
-	}
-
-	return func(s llb.State) llb.State {
-		for _, stateOption := range stateOptions {
-			s = stateOption(s)
-		}
-		return s
-	}
-}
+// func copyMultiple(src llb.State, srcPaths []string, destPath string) llb.StateOption {
+// 	var stateOptions []llb.StateOption
+// 	for _, srcPath := range srcPaths {
+// 		stateOptions = append(stateOptions, copyFrom(src, srcPath, destPath))
+// 	}
+// 	return func(s llb.State) llb.State {
+// 		for _, stateOption := range stateOptions {
+// 			s = stateOption(s)
+// 		}
+// 		return s
+// 	}
+// }
