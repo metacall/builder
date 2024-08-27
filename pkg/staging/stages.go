@@ -6,9 +6,8 @@ import (
 )
 
 var languageMap = map[string]string{
-	"base": "base",
-	"py":   "python",
-	"rb":   "ruby",
+	"py": "python",
+	"rb": "ruby",
 	// "netcore":   "netcore",
 	// "netcore2":  "netcore2",
 	// "netcore5":  "netcore5",
@@ -22,15 +21,15 @@ var languageMap = map[string]string{
 	// "v8rep52":   "v8rep52",
 	// "v8rep51":   "v8rep51",
 	"node": "nodejs",
-	"ts":   "typescript",
+	// "ts":   "typescript",
 	// "file":       "file",
 	// "rpc":        "rpc",
-	"wasm": "wasm",
-	"java": "java",
-	"c":    "c",
-	"cob":  "cobol",
-	"go":   "go",
-	"rs":   "rust",
+	// "wasm": "wasm",
+	// "java": "java",
+	// // "c":    "c",
+	// "cob":  "cobol",
+	// "go":   "go",
+	// "rs":   "rust",
 	// "backtrace"	: "backtrace",
 	// "sandbox"	: "sandbox",
 }
@@ -134,4 +133,12 @@ func MergeStates(individualLangStates map[string]llb.State) llb.State {
 		states = append(states, state)
 	}
 	return llb.Merge(states)
+}
+
+func GetAllLanguages() []string {
+	langs := []string{}
+	for lang := range languageMap {
+		langs = append(langs, lang)
+	}
+	return langs
 }

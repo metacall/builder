@@ -1,0 +1,38 @@
+name: Build and Test MetaCall Builder for startup flow
+# Seperate because the space is limited in the github actions
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "v*.*.*"
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      # TODO:
+      # - name: Lint
+      #   run: docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v1.59.1 golangci-lint run -v --enable-all
+
+      - name: Build
+        run: docker compose build
+
+      - name: Test Binary
+        env:
+          BUILDER_ARGS: "runtime rb"
+        run: docker compose up --exit-code-from binary binary
+
+      - name: Test Startup-Rootless
+        run: ./test/test.sh rootless startup
+      
+      - name: Test Startup-Daemon
+        run: ./test/test.sh client startup

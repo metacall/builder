@@ -21,15 +21,21 @@ func NewRuntimeCmd(o *RuntimeOptions) *cobra.Command {
 		Use:   "runtime",
 		Short: "Build runtime image for MetaCall",
 		RunE: func(cmd *cobra.Command, args []string) error {
+
 			if o.RuntimeImageFlags.MetacallCli {
 				args = append(args, "node")
 			}
+
+			if o.RuntimeImageFlags.Startup {
+				args = staging.GetAllLanguages()
+			}
+
 			base := cmd.Context().Value(baseKey{}).(llb.State)
 
 			devBaseLang := staging.DevBase(base, branch, args)
 			devImage := staging.MergeStates(devBaseLang)
 
-			runtimeLang:= staging.RuntimeBase(base, branch, args)
+			runtimeLang := staging.RuntimeBase(base, branch, args)
 			runtimeImage := staging.MergeStates(runtimeLang)
 
 			if o.RuntimeImageFlags.MetacallCli {
@@ -40,7 +46,6 @@ func NewRuntimeCmd(o *RuntimeOptions) *cobra.Command {
 			if err != nil {
 				return err
 			}
-
 			cmd.SetContext(context.WithValue(cmd.Context(), finalKey{}, runtime))
 			return nil
 
@@ -48,6 +53,7 @@ func NewRuntimeCmd(o *RuntimeOptions) *cobra.Command {
 		Example: `"builder runtime -b develop --cli nodejs typescript go rust wasm java c cobol"`,
 	}
 	o.RuntimeImageFlags.Set(cmd)
+	o.RuntimeImageFlags.SetStartup(cmd)
 
 	return cmd
 }
