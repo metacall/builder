@@ -5,6 +5,7 @@ import (
 	"github.com/moby/buildkit/client/llb"
 )
 
+// This is the language map
 var languageMap = map[string]string{
 	"py": "python",
 	"rb": "ruby",
