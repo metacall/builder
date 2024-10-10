@@ -28,7 +28,7 @@ var languageMap = map[string]string{
 	"wasm": "wasm",
 	"java": "java",
 	// "c":    "c",
-	"cob": "cobol",
+	//"cob": "cobol",
 	// "go":   "go",
 	// "rs":   "rust",
 	// "backtrace"	: "backtrace",
