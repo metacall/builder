@@ -19,20 +19,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      # TODO:
-      # - name: Lint
-      #   run: docker run --rm -v $(pwd):/app -w /app golangci/golangci-lint:v1.59.1 golangci-lint run -v --enable-all
-
       - name: Build
         run: docker compose build
+
+      - name: Docker system prune after build
+        run: docker system prune -af
 
       - name: Test Binary
         env:
           BUILDER_ARGS: "runtime rb"
         run: docker compose up --exit-code-from binary binary
 
+      - name: Docker system prune after test
+        run: docker system prune -af
+
       - name: Test Startup-Rootless
         run: ./test/test.sh rootless startup
-      
+
+      - name: Docker system prune after test
+        run: docker system prune -af
+
       - name: Test Startup-Daemon
         run: ./test/test.sh client startup
