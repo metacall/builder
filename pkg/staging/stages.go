@@ -25,7 +25,7 @@ var languageMap = map[string]string{
 	// "file":       "file",
 	// "rpc":        "rpc",
 	"wasm": "wasm",
-	// "java": "java",
+	"java": "java",
 	// "c":    "c",
 	// "cob":  "cobol",
 	// "go":   "go",
