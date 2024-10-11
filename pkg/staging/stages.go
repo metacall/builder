@@ -24,7 +24,7 @@ var languageMap = map[string]string{
 	// "ts":   "typescript",
 	// "file":       "file",
 	// "rpc":        "rpc",
-	"wasm": "wasm",
+	// "wasm": "wasm",
 	"java": "java",
 	// "c":    "c",
 	// "cob":  "cobol",
