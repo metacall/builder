@@ -1,5 +1,4 @@
-name: Build and Test MetaCall Builder for startup flow
-# Seperate because the space is limited in the github actions
+name: Build and Test MetaCall Builder for Startup
 
 on:
   push:
@@ -10,34 +9,36 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
+    name: Test Startup
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Build
         run: docker compose build
 
-      - name: Docker system prune after build
-        run: docker system prune -af
-
       - name: Test Binary
         env:
           BUILDER_ARGS: "runtime rb"
         run: docker compose up --exit-code-from binary binary
 
-      - name: Docker system prune after test
+      - name: Docker System Prune
         run: docker system prune -af
 
-      - name: Test Startup-Rootless
+      - name: Test Startup Rootless
         run: ./test/test.sh rootless startup
 
-      - name: Docker system prune after test
+      - name: Docker System Prune
         run: docker system prune -af
 
-      - name: Test Startup-Daemon
+      - name: Test Startup Daemon
         run: ./test/test.sh client startup
