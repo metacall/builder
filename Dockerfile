@@ -38,7 +38,7 @@ COPY --chown=user:user --chmod=700 ./scripts/builder.sh /home/user/builder.sh
 # Builder Image
 FROM moby/buildkit AS builder_client
 
-COPY --from=builder_binary --chown=root:root --chmod=700 /builder /home/builder
+COPY --from=builder_binary --chown=root:root --chmod=700 /builder /root/builder
 
 RUN apk add --no-cache docker
 
