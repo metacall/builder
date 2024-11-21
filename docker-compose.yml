@@ -1,5 +1,3 @@
-version: "3.7"
-
 services:
   binary:
     image: metacall/builder_binary
