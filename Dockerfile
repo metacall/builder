@@ -32,16 +32,11 @@ FROM moby/buildkit:master-rootless AS builder_rootless
 
 COPY --from=builder_binary --chown=user:user /builder /home/user/builder
 
-# TO-DO : Replace with copying from scripts locally
-RUN printf '#!/bin/sh\n\
-export BUILDKITD_FLAGS=--oci-worker-no-process-sandbox\n\
-/home/user/builder $@ | buildctl-daemonless.sh build \
---export-cache type=registry,ref=${EXPORT_REGISTRY},registry.insecure=true \
---import-cache type=registry,ref=${IMPORT_REGISTRY},registry.insecure=true \
---output type=image,name=registry:5000/metacall/builder_output_$1,push=true,registry.insecure=true\n'\
->> /home/user/builder.sh \
-    && chmod 700 /home/user/builder.sh \
-    && chmod 700 /home/user/builder
+# Copy the local builder.sh script from the scripts folder
+COPY ./scripts/builder.sh /home/user/builder.sh
+
+# Make the script executable
+RUN chmod 700 /home/user/builder.sh && chmod 700 /home/user/builder
 
 # Builder Image
 FROM moby/buildkit AS builder_client
@@ -50,12 +45,8 @@ COPY --from=builder_binary --chown=root:root /builder /home/builder
 
 RUN apk add --no-cache docker
 
-# TO-DO : Replace with copying from scripts locally
-RUN printf '#!/bin/sh\n\
-/home/builder $@ | buildctl --addr="docker-container://metacall_builder_buildkit" build \
---export-cache type=registry,ref=${EXPORT_REGISTRY},registry.insecure=true \
---import-cache type=registry,ref=${IMPORT_REGISTRY},registry.insecure=true \
---output type=image,name=registry:5000/metacall/builder_output_$1,push=true,registry.insecure=true\n'\
->> /home/builder.sh \
-    && chmod 700 /home/builder.sh \
-    && chmod 700 /home/builder
+# Copy the local builder.sh script from the scripts folder
+COPY ./scripts/builder.sh /home/builder.sh
+
+# Make the script executable
+RUN chmod 700 /home/builder.sh && chmod 700 /home/builder
