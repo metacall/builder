@@ -19,7 +19,7 @@ else
 fi
 
 if [ "$(id -u)" -eq 0 ]; then
-    BUILDKIT_COMMAND="buildctl --addr=\"docker-container://metacall_builder_buildkit\" build"
+    BUILDKIT_COMMAND="buildctl --addr=docker-container://metacall_builder_buildkit build"
 else
     export BUILDKITD_FLAGS=--oci-worker-no-process-sandbox
     BUILDKIT_COMMAND="buildctl-daemonless.sh build"
