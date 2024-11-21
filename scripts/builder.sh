@@ -11,7 +11,7 @@ if [ -z "$IMPORT_REGISTRY" ]; then
 fi
 
 if [ -z "$BUILDER_BINARY" ]; then
-    BUILDER_BINARY="/home/user/builder"
+    BUILDER_BINARY="${HOME}/builder"
 fi
 
 ${BUILDER_BINARY} $@ | buildctl-daemonless.sh build \
