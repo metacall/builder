@@ -19,13 +19,13 @@ else
 fi
 
 if [ "$(id -u)" -eq 0 ]; then
-    BUILDKIT_COMMAND="buildctl --addr=docker-container://metacall_builder_buildkit build"
+    BUILDKIT_COMMAND="buildctl --addr=docker-container://metacall_builder_buildkit"
 else
     export BUILDKITD_FLAGS=--oci-worker-no-process-sandbox
-    BUILDKIT_COMMAND="buildctl-daemonless.sh build"
+    BUILDKIT_COMMAND="buildctl-daemonless.sh"
 fi
 
-${BUILDER_BINARY} $@ | ${BUILDKIT_COMMAND} \
+${BUILDER_BINARY} $@ | ${BUILDKIT_COMMAND} build \
     --export-cache type=registry,ref=${EXPORT_REGISTRY},registry.insecure=true \
     --import-cache type=registry,ref=${IMPORT_REGISTRY},registry.insecure=true \
     --output type=image,name=registry:5000/metacall/${IMAGE_NAME},push=true,registry.insecure=true
